@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - ReadHub</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ReadHub Student Dashboard - Browse, borrow, and manage your library books with ease.">
+    <meta name="keywords" content="student dashboard, library management, book borrowing, ReadHub student">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="../assets/css/user-styles.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" crossorigin="anonymous">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../assets/css/user-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="background-effects">
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        <div class="gradient-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Student navigation">
+        <div class="nav-container">
+            <a href="welcome.html" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                </div>
+                <span class="brand-text">ReadHub Student</span>
+            </a>
+            <div class="nav-actions">
+                <div class="user-info">
+                    <i class="fas fa-user-graduate" aria-hidden="true"></i>
+                    <span id="studentName">Student User</span>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" role="complementary" aria-label="Student navigation">
+            <div class="sidebar-header">
+                <h2>Student Dashboard</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="overview" onclick="showSection('overview')">
+                    <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-item" data-section="browse" onclick="showSection('browse')">
+                    <i class="fas fa-search" aria-hidden="true"></i>
+                    <span>Browse Books</span>
+                </button>
+                <button class="nav-item" data-section="borrowed" onclick="showSection('borrowed')">
+                    <i class="fas fa-book-reader" aria-hidden="true"></i>
+                    <span>My Borrowed Books</span>
+                </button>
+                <button class="nav-item" data-section="history" onclick="showSection('history')">
+                    <i class="fas fa-history" aria-hidden="true"></i>
+                    <span>Borrowing History</span>
+                </button>
+                <button class="nav-item" data-section="profile" onclick="showSection('profile')">
+                    <i class="fas fa-user" aria-hidden="true"></i>
+                    <span>My Profile</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="section-header">
+                    <h1>Welcome Back!</h1>
+                    <p>Manage your library experience</p>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-book-open" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="currentBorrowed">0</h3>
+                            <p>Currently Borrowed</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="dueSoon">0</h3>
+                            <p>Due Soon</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="overdueBooks">0</h3>
+                            <p>Overdue Books</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalBorrowed">0</h3>
+                            <p>Total Borrowed</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h2>Quick Actions</h2>
+                    <div class="action-buttons">
+                        <button class="action-btn" onclick="showSection('browse')">
+                            <i class="fas fa-search" aria-hidden="true"></i>
+                            <span>Browse Books</span>
+                        </button>
+                        <button class="action-btn" onclick="showSection('borrowed')">
+                            <i class="fas fa-book-reader" aria-hidden="true"></i>
+                            <span>View Borrowed</span>
+                        </button>
+                        <button class="action-btn" onclick="showSection('history')">
+                            <i class="fas fa-history" aria-hidden="true"></i>
+                            <span>Borrowing History</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Browse Books Section -->
+            <section id="browse" class="content-section">
+                <div class="section-header">
+                    <h1>Browse Books</h1>
+                    <p>Discover and borrow books from the library</p>
+                </div>
+
+                <!-- Search and Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="text" id="bookSearch" placeholder="Search books by title, author, or ISBN..." onkeyup="filterBooks()">
+                    </div>
+                    <select id="categoryFilter" onchange="filterBooks()">
+                        <option value="">All Categories</option>
+                        <option value="fiction">Fiction</option>
+                        <option value="non-fiction">Non-Fiction</option>
+                        <option value="academic">Academic</option>
+                        <option value="reference">Reference</option>
+                    </select>
+                    <select id="availabilityFilter" onchange="filterBooks()">
+                        <option value="">All Books</option>
+                        <option value="available">Available Only</option>
+                        <option value="borrowed">Currently Borrowed</option>
+                    </select>
+                </div>
+
+                <!-- Books Grid -->
+                <div class="books-grid" id="booksGrid">
+                    <!-- Books will be populated here -->
+                </div>
+            </section>
+
+            <!-- My Borrowed Books Section -->
+            <section id="borrowed" class="content-section">
+                <div class="section-header">
+                    <h1>My Borrowed Books</h1>
+                    <p>Manage your currently borrowed books</p>
+                </div>
+
+                <!-- Borrowed Books Table -->
+                <div class="table-container">
+                    <table class="data-table" id="borrowedTable">
+                        <thead>
+                            <tr>
+                                <th>Book Details</th>
+                                <th>Borrow Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="borrowedTableBody">
+                            <!-- Borrowed books will be populated here -->
+                            <tr class="no-data">
+                                <td colspan="5">
+                                    <div class="no-data-message">
+                                        <i class="fas fa-book-reader" aria-hidden="true"></i>
+                                        <p>No borrowed books found</p>
+                                        <small>Start browsing books to borrow some!</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Borrowing History Section -->
+            <section id="history" class="content-section">
+                <div class="section-header">
+                    <h1>Borrowing History</h1>
+                    <p>Track all your borrowing activities</p>
+                </div>
+
+                <!-- History Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="text" id="historySearch" placeholder="Search history..." onkeyup="filterHistory()">
+                    </div>
+                    <select id="statusFilter" onchange="filterHistory()">
+                        <option value="">All Status</option>
+                        <option value="returned">Returned</option>
+                        <option value="borrowed">Currently Borrowed</option>
+                        <option value="overdue">Overdue</option>
+                    </select>
+                </div>
+
+                <!-- History Table -->
+                <div class="table-container">
+                    <table class="data-table" id="historyTable">
+                        <thead>
+                            <tr>
+                                <th>Book Details</th>
+                                <th>Borrow Date</th>
+                                <th>Due Date</th>
+                                <th>Return Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- History will be populated here -->
+                            <tr class="no-data">
+                                <td colspan="5">
+                                    <div class="no-data-message">
+                                        <i class="fas fa-history" aria-hidden="true"></i>
+                                        <p>No borrowing history found</p>
+                                        <small>Your borrowing history will appear here</small>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Profile Section -->
+            <section id="profile" class="content-section">
+                <div class="section-header">
+                    <h1>My Profile</h1>
+                    <p>Manage your account information</p>
+                </div>
+
+                <!-- Profile Card -->
+                <div class="profile-card">
+                    <div class="profile-header">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user-graduate" aria-hidden="true"></i>
+                        </div>
+                        <div class="profile-info">
+                            <h2 id="profileName">Student Name</h2>
+                            <p id="profileEmail">student@email.com</p>
+                            <span class="profile-badge" id="profileStatus">Active</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-details">
+                        <div class="detail-row" id="studentIdRow" style="display: none;">
+                            <label>Student ID:</label>
+                            <span id="profileStudentId"></span>
+                        </div>
+                        <div class="detail-row" id="departmentRow" style="display: none;">
+                            <label>Department:</label>
+                            <span id="profileDepartment"></span>
+                        </div>
+                        <div class="detail-row" id="yearRow" style="display: none;">
+                            <label>Academic Year:</label>
+                            <span id="profileYear"></span>
+                        </div>
+                        <div class="detail-row" id="phoneRow" style="display: none;">
+                            <label>Phone:</label>
+                            <span id="profilePhone"></span>
+                        </div>
+                        <div class="detail-row" id="joinDateRow" style="display: none;">
+                            <label>Member Since:</label>
+                            <span id="profileJoinDate"></span>
+                        </div>
+                        
+                        <!-- Show message if no additional details available -->
+                        <div id="noDetailsMessage" class="no-details-message" style="display: none;">
+                            <p>Additional profile details are not yet configured.</p>
+                            <small>Contact your administrator to update your profile information.</small>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Borrow Confirmation Modal -->
+    <div id="borrowModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Confirm Book Borrowing</h2>
+                <button class="modal-close" onclick="closeBorrowModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="book-preview">
+                    <div class="book-cover">
+                        <i class="fas fa-book" aria-hidden="true"></i>
+                    </div>
+                    <div class="book-details">
+                        <h3 id="borrowBookTitle">Book Title</h3>
+                        <p id="borrowBookAuthor">Author Name</p>
+                        <p id="borrowBookISBN">ISBN: 1234567890</p>
+                    </div>
+                </div>
+                <div class="borrow-info">
+                    <p><strong>Borrowing Period:</strong> 14 days</p>
+                    <p><strong>Due Date:</strong> <span id="borrowDueDate">February 15, 2024</span></p>
+                    <p><strong>Current Borrowed:</strong> <span id="currentBorrowedCount">0</span> / 5 books</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeBorrowModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmBorrow()">Borrow Book</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Return Confirmation Modal -->
+    <div id="returnModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Return Book</h2>
+                <button class="modal-close" onclick="closeReturnModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="book-preview">
+                    <div class="book-cover">
+                        <i class="fas fa-book" aria-hidden="true"></i>
+                    </div>
+                    <div class="book-details">
+                        <h3 id="returnBookTitle">Book Title</h3>
+                        <p id="returnBookAuthor">Author Name</p>
+                        <p id="returnBookISBN">ISBN: 1234567890</p>
+                    </div>
+                </div>
+                <div class="return-info">
+                    <p><strong>Borrowed On:</strong> <span id="returnBorrowDate">January 1, 2024</span></p>
+                    <p><strong>Due Date:</strong> <span id="returnDueDate">January 15, 2024</span></p>
+                    <p><strong>Status:</strong> <span id="returnStatus">On Time</span></p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeReturnModal()">Cancel</button>
+                <button type="button" class="btn-primary" onclick="confirmReturn()">Return Book</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Message Containers -->
+    <div id="errorMessage" class="message-container error-message" style="display: none;" role="alert">
+        <div class="message-content">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span class="message-text"></span>
+        </div>
+    </div>
+
+    <div id="successMessage" class="message-container success-message" style="display: none;" role="alert">
+        <div class="message-content">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span class="message-text"></span>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs, addDoc, updateDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+        
+        // Firebase Configuration - Embedded directly to avoid import issues
+        const firebaseConfig = {
+            apiKey: "AIzaSyB23aqjvtZEBFatxsJf2Xz3UnKIv4T6C_g",
+            authDomain: "library-management-35906.firebaseapp.com",
+            databaseURL: "https://library-management-35906-default-rtdb.firebaseio.com",
+            projectId: "library-management-35906",
+            storageBucket: "library-management-35906.firebasestorage.app",
+            messagingSenderId: "204321553381",
+            appId: "1:204321553381:web:0ee02854d1c2fd3a1fcd0c",
+            measurementId: "G-L9LKBLT153"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // Make Firebase available globally
+        window.firebaseAuth = auth;
+        window.firebaseDb = db;
+        window.onAuthStateChanged = onAuthStateChanged;
+        window.signOut = signOut;
+        window.doc = doc;
+        window.getDoc = getDoc;
+        window.collection = collection;
+        window.query = query;
+        window.where = where;
+        window.getDocs = getDocs;
+        window.addDoc = addDoc;
+        window.updateDoc = updateDoc;
+        window.serverTimestamp = serverTimestamp;
+
+        // User dashboard will be initialized when the script loads
+    </script>
+
+
+    <!-- User Dashboard Script -->
+    <script src="../assets/js/user-dashboard.js" defer></script>
+</body>
+</html>

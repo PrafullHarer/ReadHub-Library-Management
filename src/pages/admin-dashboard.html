@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - ReadHub</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="ReadHub Admin Dashboard - Manage books, users, and library operations with comprehensive administrative tools.">
+    <meta name="keywords" content="admin dashboard, library management, book management, user management, ReadHub admin">
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="../assets/css/admin-styles.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" crossorigin="anonymous">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../assets/css/admin-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="background-effects">
+        <div class="floating-particles">
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+            <div class="particle"></div>
+        </div>
+        <div class="gradient-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Admin navigation">
+        <div class="nav-container">
+            <a href="welcome.html" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                </div>
+                <span class="brand-text">ReadHub Admin</span>
+            </a>
+            <div class="nav-actions">
+                <div class="user-info">
+                    <i class="fas fa-user-shield" aria-hidden="true"></i>
+                    <span id="adminName">Admin User</span>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Dashboard Container -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" role="complementary" aria-label="Admin navigation">
+            <div class="sidebar-header">
+                <h2>Admin Dashboard</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <button class="nav-item active" data-section="overview" onclick="showSection('overview')">
+                    <i class="fas fa-chart-pie" aria-hidden="true"></i>
+                    <span>Overview</span>
+                </button>
+                <button class="nav-item" data-section="books" onclick="showSection('books')">
+                    <i class="fas fa-book" aria-hidden="true"></i>
+                    <span>Book Management</span>
+                </button>
+                <button class="nav-item" data-section="borrowed" onclick="showSection('borrowed')">
+                    <i class="fas fa-book-reader" aria-hidden="true"></i>
+                    <span>Borrowed Books</span>
+                </button>
+                <button class="nav-item" data-section="users" onclick="showSection('users')">
+                    <i class="fas fa-users" aria-hidden="true"></i>
+                    <span>User Management</span>
+                </button>
+                <button class="nav-item" data-section="reports" onclick="showSection('reports')">
+                    <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                    <span>Reports</span>
+                </button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" role="main">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="section-header">
+                    <h1>Dashboard Overview</h1>
+                    <p>Welcome to ReadHub Admin Dashboard</p>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <!-- Primary Stats Row -->
+                    <div class="stats-row primary-stats">
+                        <div class="stat-card featured">
+                            <div class="stat-icon">
+                                <i class="fas fa-book" aria-hidden="true"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalBooks">0</h3>
+                                <p>Total Books</p>
+                                <div class="stat-trend">
+                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    <span>Library Collection</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stat-card featured">
+                            <div class="stat-icon">
+                                <i class="fas fa-users" aria-hidden="true"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="totalUsers">0</h3>
+                                <p>Total Users</p>
+                                <div class="stat-trend">
+                                    <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                    <span>Registered Members</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Secondary Stats Row -->
+                    <div class="stats-row secondary-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-book-reader" aria-hidden="true"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="borrowedBooks">0</h3>
+                                <p>Currently Borrowed</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock" aria-hidden="true"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="pendingRequests">0</h3>
+                                <p>Pending Requests</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                            </div>
+                            <div class="stat-content">
+                                <h3 id="overdueBooks">0</h3>
+                                <p>Overdue Books</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Book Management Section -->
+            <section id="books" class="content-section">
+                <div class="section-header">
+                    <h1>Book Management</h1>
+                    <button class="btn-primary" onclick="openAddBookModal()">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                        Add New Book
+                    </button>
+                </div>
+
+                <!-- Book Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="text" id="bookSearch" placeholder="Search books..." onkeyup="filterBooks()">
+                    </div>
+                    <select id="availabilityFilter" onchange="filterBooks()">
+                        <option value="">All Books</option>
+                        <option value="available">Available</option>
+                        <option value="borrowed">Borrowed</option>
+                        <option value="maintenance">Under Maintenance</option>
+                    </select>
+                </div>
+
+                <!-- Books Table -->
+                <div class="table-container">
+                    <table class="data-table" id="booksTable">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Author</th>
+                                <th>ISBN</th>
+                                <th>Availability</th>
+                                <th>Condition</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="booksTableBody">
+                            <!-- Books will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Borrowed Books Section -->
+            <section id="borrowed" class="content-section">
+                <div class="section-header">
+                    <h1>Borrowed Books</h1>
+                    <p>View and manage all currently borrowed books</p>
+                </div>
+
+                <!-- Borrowed Books Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="text" id="borrowedSearch" placeholder="Search borrowed books..." onkeyup="filterBorrowedBooks()">
+                    </div>
+                    <select id="borrowedStatusFilter" onchange="filterBorrowedBooks()">
+                        <option value="">All Borrowed Books</option>
+                        <option value="active">Currently Borrowed</option>
+                        <option value="overdue">Overdue</option>
+                        <option value="returned">Recently Returned</option>
+                    </select>
+                </div>
+
+                <!-- Borrowed Books Table -->
+                <div class="table-container">
+                    <table class="data-table" id="borrowedTable">
+                        <thead>
+                            <tr>
+                                <th>Book Details</th>
+                                <th>Borrower Information</th>
+                                <th>Contact Details</th>
+                                <th>Borrow Date</th>
+                                <th>Due Date</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="borrowedTableBody">
+                            <!-- Sample borrowed book row -->
+                            <tr>
+                                <td>
+                                    <div class="book-info">
+                                        <h4>Introduction to Algorithms</h4>
+                                        <p>by Thomas H. Cormen</p>
+                                        <small>ISBN: 978-0262033848</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="borrower-info">
+                                        <h4>Prafull Mahesh Harer</h4>
+                                        <p>Student ID: 1</p>
+                                        <span class="status-badge active">Active</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="contact-info">
+                                        <p><i class="fas fa-envelope"></i> s@gmail.com</p>
+                                        <p><i class="fas fa-phone"></i> 1234567890</p>
+                                    </div>
+                                </td>
+                                <td>March 15, 2024</td>
+                                <td>April 15, 2024</td>
+                                <td>
+                                    <span class="status-badge active">Active</span>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button type="button" class="btn-secondary" onclick="returnBook()">
+                                            <i class="fas fa-undo" aria-hidden="true"></i>
+                                            Return Book
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- End sample row -->
+                        </tbody>
+                    </table>
+                </div>
+
+            </section>
+
+            <!-- User Management Section -->
+            <section id="users" class="content-section">
+                <div class="section-header">
+                    <h1>User Management</h1>
+                    <button class="btn-primary" onclick="openAddUserModal()">
+                        <i class="fas fa-user-plus" aria-hidden="true"></i>
+                        Add New Student/Member
+                    </button>
+                </div>
+
+
+                <!-- Users Table -->
+                <div class="table-container">
+                    <table class="data-table" id="usersTable">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Join Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <!-- Users will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Reports Section -->
+            <section id="reports" class="content-section">
+                <div class="section-header">
+                    <h1>Reports & Analytics</h1>
+                </div>
+                
+                <div class="reports-grid">
+                    <div class="report-card">
+                        <h3>Borrowing Trends</h3>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-line" aria-hidden="true"></i>
+                            <p>Chart will be implemented here</p>
+                        </div>
+                    </div>
+                    <div class="report-card">
+                        <h3>Popular Books</h3>
+                        <div class="chart-placeholder">
+                            <i class="fas fa-chart-bar" aria-hidden="true"></i>
+                            <p>Chart will be implemented here</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add Book Modal -->
+    <div id="addBookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Book</h2>
+                <button class="modal-close" onclick="closeAddBookModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="addBookForm" class="modal-form">
+                <div class="form-group">
+                    <label for="bookTitle">Book Title *</label>
+                    <input type="text" id="bookTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookAuthor">Author *</label>
+                    <input type="text" id="bookAuthor" name="author" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookISBN">ISBN *</label>
+                    <input type="text" id="bookISBN" name="isbn" required>
+                </div>
+                <div class="form-group">
+                    <label for="bookCondition">Condition</label>
+                    <select id="bookCondition" name="condition">
+                        <option value="excellent">Excellent</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bookDescription">Description</label>
+                    <textarea id="bookDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddBookModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <div id="editBookModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Book</h2>
+                <button class="modal-close" onclick="closeEditBookModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="editBookForm" class="modal-form">
+                <input type="hidden" id="editBookId" name="id">
+                <div class="form-group">
+                    <label for="editBookTitle">Book Title *</label>
+                    <input type="text" id="editBookTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                    <label for="editBookAuthor">Author *</label>
+                    <input type="text" id="editBookAuthor" name="author" required>
+                </div>
+                <div class="form-group">
+                    <label for="editBookISBN">ISBN *</label>
+                    <input type="text" id="editBookISBN" name="isbn" required>
+                </div>
+                <div class="form-group">
+                    <label for="editBookCondition">Condition</label>
+                    <select id="editBookCondition" name="condition">
+                        <option value="excellent">Excellent</option>
+                        <option value="good">Good</option>
+                        <option value="fair">Fair</option>
+                        <option value="poor">Poor</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editBookAvailability">Availability</label>
+                    <select id="editBookAvailability" name="availability">
+                        <option value="available">Available</option>
+                        <option value="borrowed">Borrowed</option>
+                        <option value="maintenance">Under Maintenance</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editBookDescription">Description</label>
+                    <textarea id="editBookDescription" name="description" rows="3"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeEditBookModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Update Book</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add New Student/Member</h2>
+                <button class="modal-close" onclick="closeAddUserModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="addUserForm" class="modal-form">
+                <div class="form-group">
+                    <label for="userFullName">Full Name *</label>
+                    <input type="text" id="userFullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="userEmail">Email Address *</label>
+                    <input type="email" id="userEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="userPhone">Phone Number</label>
+                    <input type="tel" id="userPhone" name="phone" placeholder="+1 (555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label for="userStudentId">Student ID *</label>
+                    <input type="text" id="userStudentId" name="studentId" required placeholder="STU001">
+                </div>
+                <div class="form-group">
+                    <label for="userDepartment">Department *</label>
+                    <select id="userDepartment" name="department" required>
+                        <option value="">Select Department</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="English Literature">English Literature</option>
+                        <option value="Political Science">Political Science</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="History">History</option>
+                        <option value="Psychology">Psychology</option>
+                        <option value="Business Administration">Business Administration</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userYear">Academic Year *</label>
+                    <select id="userYear" name="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="Graduate">Graduate</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Faculty">Faculty</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userPassword">Temporary Password *</label>
+                    <input type="password" id="userPassword" name="password" required placeholder="User will be asked to change on first login">
+                </div>
+                <div class="form-group">
+                    <label for="userStatus">Account Status</label>
+                    <select id="userStatus" name="status">
+                        <option value="active">Active</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userNotes">Notes</label>
+                    <textarea id="userNotes" name="notes" rows="3" placeholder="Additional notes about the user..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeAddUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit User Details</h2>
+                <button class="modal-close" onclick="closeEditUserModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <form id="editUserForm" class="modal-form">
+                <input type="hidden" id="editUserId" name="userId">
+                <div class="form-group">
+                    <label for="editUserFullName">Full Name *</label>
+                    <input type="text" id="editUserFullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editUserEmail">Email Address *</label>
+                    <input type="email" id="editUserEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="editUserPhone">Phone Number</label>
+                    <input type="tel" id="editUserPhone" name="phone" placeholder="+1 (555) 123-4567">
+                </div>
+                <div class="form-group">
+                    <label for="editUserStudentId">Student ID *</label>
+                    <input type="text" id="editUserStudentId" name="studentId" required placeholder="STU001">
+                </div>
+                <div class="form-group">
+                    <label for="editUserDepartment">Department *</label>
+                    <select id="editUserDepartment" name="department" required>
+                        <option value="">Select Department</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="English Literature">English Literature</option>
+                        <option value="Political Science">Political Science</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Physics">Physics</option>
+                        <option value="Chemistry">Chemistry</option>
+                        <option value="Biology">Biology</option>
+                        <option value="History">History</option>
+                        <option value="Psychology">Psychology</option>
+                        <option value="Business Administration">Business Administration</option>
+                        <option value="Engineering">Engineering</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserYear">Academic Year *</label>
+                    <select id="editUserYear" name="year" required>
+                        <option value="">Select Year</option>
+                        <option value="1st Year">1st Year</option>
+                        <option value="2nd Year">2nd Year</option>
+                        <option value="3rd Year">3rd Year</option>
+                        <option value="4th Year">4th Year</option>
+                        <option value="Graduate">Graduate</option>
+                        <option value="PhD">PhD</option>
+                        <option value="Faculty">Faculty</option>
+                        <option value="Staff">Staff</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserStatus">Account Status</label>
+                    <select id="editUserStatus" name="status">
+                        <option value="active">Active</option>
+                        <option value="pending">Pending Approval</option>
+                        <option value="suspended">Suspended</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserRole">User Role</label>
+                    <select id="editUserRole" name="role">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editUserNotes">Notes</label>
+                    <textarea id="editUserNotes" name="notes" rows="3" placeholder="Additional notes about the user..."></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Update User</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Message Containers -->
+    <div id="errorMessage" class="message-container error-message" style="display: none;" role="alert">
+        <div class="message-content">
+            <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
+            <span class="message-text"></span>
+        </div>
+        <button class="message-close" onclick="hideMessage('errorMessage')" aria-label="Close error message">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <div id="successMessage" class="message-container success-message" style="display: none;" role="alert">
+        <div class="message-content">
+            <i class="fas fa-check-circle" aria-hidden="true"></i>
+            <span class="message-text"></span>
+        </div>
+        <button class="message-close" onclick="hideMessage('successMessage')" aria-label="Close success message">
+            <i class="fas fa-times" aria-hidden="true"></i>
+        </button>
+    </div>
+
+    <!-- Firebase SDK - Deferred Loading -->
+    <script type="module" defer>
+        try {
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            const { signOut, onAuthStateChanged, createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, getDocs, query, where, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+            
+            // Firebase Configuration - Embedded directly to avoid import issues
+            const firebaseConfig = {
+                apiKey: "AIzaSyB23aqjvtZEBFatxsJf2Xz3UnKIv4T6C_g",
+                authDomain: "library-management-35906.firebaseapp.com",
+                databaseURL: "https://library-management-35906-default-rtdb.firebaseio.com",
+                projectId: "library-management-35906",
+                storageBucket: "library-management-35906.firebasestorage.app",
+                messagingSenderId: "204321553381",
+                appId: "1:204321553381:web:0ee02854d1c2fd3a1fcd0c",
+                measurementId: "G-L9LKBLT153"
+            };
+        
+            // Initialize Firebase
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            const db = getFirestore(app);
+            
+            // Make Firebase available globally
+            window.firebaseAuth = auth;
+            window.firebaseDb = db;
+            window.signOut = signOut;
+            window.onAuthStateChanged = onAuthStateChanged;
+            window.createUserWithEmailAndPassword = createUserWithEmailAndPassword;
+            window.doc = doc;
+            window.setDoc = setDoc;
+            window.getDoc = getDoc;
+            window.collection = collection;
+            window.addDoc = addDoc;
+            window.updateDoc = updateDoc;
+            window.deleteDoc = deleteDoc;
+            window.getDocs = getDocs;
+            window.query = query;
+            window.where = where;
+            window.onSnapshot = onSnapshot;
+            
+            // Initialize admin features
+            initializeAdminFeatures();
+        } catch (error) {
+            console.error('Failed to load Firebase:', error);
+            showMessage('Unable to connect to authentication service. Please check your connection.', 'error');
+        }
+        
+        function initializeAdminFeatures() {
+            // Check if user is already logged in and is admin
+            if (window.onAuthStateChanged && window.firebaseAuth) {
+                window.onAuthStateChanged(window.firebaseAuth, (user) => {
+                    if (user) {
+                        checkAdminStatus(user);
+                    } else {
+                        window.location.href = 'login.html';
+                    }
+                });
+            }
+            
+            // Add form event listeners
+            const addBookForm = document.getElementById('addBookForm');
+            const editBookForm = document.getElementById('editBookForm');
+            
+            if (addBookForm) {
+                addBookForm.addEventListener('submit', handleAddBook);
+            }
+            
+            if (editBookForm) {
+                editBookForm.addEventListener('submit', handleEditBook);
+            }
+            
+            // Load initial data
+            loadDashboardData();
+        }
+        
+        // Global functions
+        window.handleLogout = handleLogout;
+        window.showSection = showSection;
+        window.openAddBookModal = openAddBookModal;
+        window.closeAddBookModal = closeAddBookModal;
+        window.openEditBookModal = openEditBookModal;
+        window.closeEditBookModal = closeEditBookModal;
+        window.filterBooks = filterBooks;
+        window.hideMessage = hideMessage;
+        // Return Book Function
+        function returnBook() {
+            if (confirm('Are you sure you want to mark this book as returned?')) {
+                // In a real application, you would implement the return book functionality
+                alert('Book has been marked as returned successfully!');
+                console.log('Book returned');
+            }
+        }
+    </script>
+
+
+    <!-- Admin Script -->
+    <script src="../assets/js/admin.js" defer></script>
+</body>
+</html>
