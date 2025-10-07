@@ -6,25 +6,156 @@ const registerForm = document.getElementById('registerForm');
 const errorMessage = document.getElementById('errorMessage');
 const successMessage = document.getElementById('successMessage');
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', function() {
-    // Wait for Firebase to be ready
-    if (window.firebaseReady) {
-        initializeApp();
-    } else {
-        // Listen for Firebase ready event
-        window.addEventListener('firebaseReady', initializeApp);
-    }
+// Mobile-specific optimizations
+function initializeMobileOptimizations() {
+    // Prevent zoom on input focus (iOS Safari)
+    const inputs = document.querySelectorAll('input, select, textarea');
+    inputs.forEach(input => {
+        input.addEventListener('focus', function() {
+            if (window.innerWidth <= 768) {
+                // Prevent zoom on iOS
+                const viewport = document.querySelector('meta[name=viewport]');
+                if (viewport) {
+                    viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no';
+                }
+            }
+        });
+        
+        input.addEventListener('blur', function() {
+            if (window.innerWidth <= 768) {
+                // Restore zoom capability
+                const viewport = document.querySelector('meta[name=viewport]');
+                if (viewport) {
+                    viewport.content = 'width=device-width, initial-scale=1.0';
+                }
+            }
+        });
+    });
     
-    // Add form event listeners
+    // Optimize touch interactions
+    const buttons = document.querySelectorAll('button, .submit-button, .back-button');
+    buttons.forEach(button => {
+        button.addEventListener('touchstart', function(e) {
+            // Add touch feedback
+            this.style.transform = 'scale(0.98)';
+        }, { passive: true });
+        
+        button.addEventListener('touchend', function(e) {
+            // Remove touch feedback
+            this.style.transform = 'scale(1)';
+        }, { passive: true });
+        
+        button.addEventListener('touchcancel', function(e) {
+            // Remove touch feedback if cancelled
+            this.style.transform = 'scale(1)';
+        }, { passive: true });
+    });
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', function() {
+        // Delay to ensure proper rendering after orientation change
+        setTimeout(function() {
+            // Recalculate viewport height for mobile browsers
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        }, 100);
+    });
+    
+    // Set initial viewport height
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    
+    // Prevent pull-to-refresh on mobile
+    let startY = 0;
+    document.addEventListener('touchstart', function(e) {
+        startY = e.touches[0].clientY;
+    }, { passive: true });
+    
+    document.addEventListener('touchmove', function(e) {
+        const currentY = e.touches[0].clientY;
+        if (currentY > startY && window.scrollY === 0) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+    
+    // Optimize form submission for mobile
     if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
+        loginForm.addEventListener('submit', function(e) {
+            // Hide virtual keyboard on mobile after form submission
+            if (window.innerWidth <= 768) {
+                const activeElement = document.activeElement;
+                if (activeElement && activeElement.blur) {
+                    activeElement.blur();
+                }
+            }
+        });
+    }
+}
+
+// Enhanced mobile form validation
+function validateMobileForm(formData) {
+    const errors = [];
+    
+    // Check email format
+    if (!formData.email || !isValidEmail(formData.email)) {
+        errors.push('Please enter a valid email address');
     }
     
-    if (registerForm) {
-        registerForm.addEventListener('submit', handleRegister);
+    // Check password length
+    if (!formData.password || formData.password.length < 6) {
+        errors.push('Password must be at least 6 characters long');
     }
-});
+    
+    // Check user type selection
+    if (!formData.userType) {
+        errors.push('Please select your account type');
+    }
+    
+    return errors;
+}
+
+// Mobile-friendly error display
+function showMobileError(message) {
+    const errorContainer = document.getElementById('errorMessage');
+    if (errorContainer) {
+        const messageText = errorContainer.querySelector('.message-text');
+        if (messageText) {
+            messageText.textContent = message;
+        }
+        errorContainer.style.display = 'block';
+        
+        // Auto-hide after 5 seconds on mobile
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                errorContainer.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Scroll to error message on mobile
+        if (window.innerWidth <= 768) {
+            errorContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+}
+
+// Mobile-friendly success display
+function showMobileSuccess(message) {
+    const successContainer = document.getElementById('successMessage');
+    if (successContainer) {
+        const messageText = successContainer.querySelector('.message-text');
+        if (messageText) {
+            messageText.textContent = message;
+        }
+        successContainer.style.display = 'block';
+        
+        // Auto-hide after 3 seconds on mobile
+        if (window.innerWidth <= 768) {
+            setTimeout(() => {
+                successContainer.style.display = 'none';
+            }, 3000);
+        }
+    }
+}
 
 // Initialize app when Firebase is ready
 function initializeApp() {
@@ -430,9 +561,60 @@ function showMessage(message, type) {
     }
 }
 
-// Make functions globally available
-window.handleLogin = handleLogin;
-window.handleRegister = handleRegister;
-window.redirectToDashboard = redirectToDashboard;
-window.showMessage = showMessage;
-window.togglePassword = togglePassword;
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize mobile optimizations first
+    initializeMobileOptimizations();
+    
+    // Wait for Firebase to be ready
+    if (window.firebaseReady) {
+        initializeApp();
+    } else {
+        // Listen for Firebase ready event
+        window.addEventListener('firebaseReady', initializeApp);
+    }
+    
+    // Add form event listeners
+    if (loginForm) {
+        loginForm.addEventListener('submit', handleLogin);
+    }
+    
+    if (registerForm) {
+        registerForm.addEventListener('submit', handleRegister);
+    }
+});
+
+// Initialize app when Firebase is ready
+function initializeApp() {
+    if (window.firebaseAuth) {
+        // Check if user is already logged in
+        checkAuthState();
+    } else {
+        console.error('Firebase not loaded properly');
+    }
+}
+
+// Check authentication state
+function checkAuthState() {
+    if (window.onAuthStateChanged && window.firebaseAuth) {
+        window.onAuthStateChanged(window.firebaseAuth, (user) => {
+            if (user) {
+                // User is signed in
+                
+                // Check if we have stored user data
+                const currentUser = JSON.parse(localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser'));
+                
+                if (currentUser && currentUser.uid === user.uid) {
+                    // We have stored user data, redirect to dashboard
+                    redirectToDashboard(user);
+                } else {
+                    // No stored user data, stay on login page
+                    console.log('User signed in but no stored data found');
+                }
+            } else {
+                // User is signed out
+                console.log('User signed out');
+            }
+        });
+    }
+}

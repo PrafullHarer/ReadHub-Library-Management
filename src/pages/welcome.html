@@ -2,7 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="ReadHub">
     <title>ReadHub - Modern Digital Library</title>
     
     <!-- SEO Meta Tags -->
@@ -24,8 +29,10 @@
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
     
-    <!-- Favicon -->
+    <!-- Favicon and Mobile Icons -->
     <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+    <link rel="manifest" href="data:application/json,{'name':'ReadHub','short_name':'ReadHub','theme_color':'#000000','background_color':'#ffffff','display':'standalone','start_url':'/','icons':[{'src':'data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>','sizes':'192x192','type':'image/svg+xml'}]}">
 </head>
 <body>
     <!-- Navigation -->
@@ -344,9 +351,15 @@
         }
         
         function initializeAnimations() {
+            // Mobile-specific optimizations
+            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            
             // Counter animation for stats
             const counters = document.querySelectorAll('.stat-number');
-            const observerOptions = { threshold: 0.7 };
+            const observerOptions = { 
+                threshold: isMobile ? 0.5 : 0.7, // Lower threshold for mobile
+                rootMargin: isMobile ? '0px 0px -50px 0px' : '0px 0px -100px 0px'
+            };
             
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -358,6 +371,79 @@
             }, observerOptions);
             
             counters.forEach(counter => observer.observe(counter));
+            
+            // Mobile-specific optimizations
+            if (isMobile) {
+                // Optimize touch interactions
+                optimizeTouchInteractions();
+                
+                // Handle viewport changes
+                handleViewportChanges();
+                
+                // Optimize animations for mobile
+                optimizeMobileAnimations();
+            }
+        }
+        
+        function optimizeTouchInteractions() {
+            // Add touch-friendly classes
+            document.body.classList.add('touch-device');
+            
+            // Prevent double-tap zoom on buttons
+            const buttons = document.querySelectorAll('a, button');
+            buttons.forEach(button => {
+                button.addEventListener('touchend', (e) => {
+                    e.preventDefault();
+                    button.click();
+                }, { passive: false });
+            });
+        }
+        
+        function handleViewportChanges() {
+            // Handle orientation changes
+            window.addEventListener('orientationchange', () => {
+                setTimeout(() => {
+                    window.scrollTo(0, 0);
+                }, 100);
+            });
+            
+            // Handle viewport resize
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    // Recalculate layout if needed
+                    const event = new Event('resize');
+                    window.dispatchEvent(event);
+                }, 250);
+            });
+        }
+        
+        function optimizeMobileAnimations() {
+            // Reduce animation complexity on mobile
+            const style = document.createElement('style');
+            style.textContent = `
+                @media (max-width: 768px) {
+                    .book-item {
+                        animation-duration: 8s !important;
+                    }
+                    .tech-grid-item {
+                        animation-duration: 6s !important;
+                    }
+                    .feature-card:hover {
+                        transform: translateY(-4px) !important;
+                    }
+                }
+                
+                @media (prefers-reduced-motion: reduce) {
+                    * {
+                        animation-duration: 0.01ms !important;
+                        animation-iteration-count: 1 !important;
+                        transition-duration: 0.01ms !important;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
         }
         
         function animateCounter(element) {

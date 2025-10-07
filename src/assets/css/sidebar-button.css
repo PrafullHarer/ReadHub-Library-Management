@@ -1,0 +1,362 @@
+/* ========================================
+   SIDEBAR BUTTON STYLES
+   Modern, animated sidebar toggle button
+   Black & White Color Scheme with Click Effects
+   ======================================== */
+
+/* Sidebar Toggle - Fixed in Header (Leftmost Position) */
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #000000 0%, #333333 100%);
+    border: 2px solid transparent;
+    border-radius: 12px;
+    width: 48px;
+    height: 48px;
+    color: white;
+    font-size: 1.125rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-right: 1rem;
+    margin-left: 0; /* Ensure no left margin */
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    order: -1; /* Force to leftmost position */
+}
+
+/* Gradient Overlay Effect */
+.sidebar-toggle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 50%);
+    border-radius: 10px;
+    opacity: 0;
+    transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Click Background Effect - Wave Animation */
+.sidebar-toggle::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1), height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 0;
+    pointer-events: none;
+}
+
+/* Hover State */
+.sidebar-toggle:hover {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.sidebar-toggle:hover::before {
+    opacity: 1;
+}
+
+/* Active State with Click Effects */
+.sidebar-toggle:active {
+    transform: translateY(0) scale(0.98);
+    transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(135deg, #333333 0%, #1a1a1a 100%);
+}
+
+/* Click Effect Animation */
+.sidebar-toggle.clicked::after {
+    width: 120px;
+    height: 120px;
+    animation: click-wave 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Click Wave Animation Keyframes */
+@keyframes click-wave {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    50% {
+        width: 80px;
+        height: 80px;
+        opacity: 0.8;
+    }
+    100% {
+        width: 120px;
+        height: 120px;
+        opacity: 0;
+    }
+}
+
+/* Success Click Effect */
+.sidebar-toggle.success-clicked::after {
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0.2) 50%, transparent 70%);
+    animation: success-click-wave 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes success-click-wave {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    30% {
+        width: 60px;
+        height: 60px;
+        opacity: 0.9;
+    }
+    70% {
+        width: 100px;
+        height: 100px;
+        opacity: 0.4;
+    }
+    100% {
+        width: 140px;
+        height: 140px;
+        opacity: 0;
+    }
+}
+
+/* Error Click Effect */
+.sidebar-toggle.error-clicked::after {
+    background: radial-gradient(circle, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.2) 50%, transparent 70%);
+    animation: error-click-wave 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes error-click-wave {
+    0% {
+        width: 0;
+        height: 0;
+        opacity: 1;
+    }
+    50% {
+        width: 70px;
+        height: 70px;
+        opacity: 0.7;
+    }
+    100% {
+        width: 100px;
+        height: 100px;
+        opacity: 0;
+    }
+}
+
+/* Icon Styling */
+.sidebar-toggle i {
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle:hover i {
+    transform: scale(1.1) rotate(5deg);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Click Icon Animation */
+.sidebar-toggle.clicked i {
+    animation: icon-bounce 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes icon-bounce {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Focus State for Accessibility */
+.sidebar-toggle:focus {
+    outline: 3px solid rgba(0, 0, 0, 0.3);
+    outline-offset: 2px;
+}
+
+/* Mobile Responsive Design */
+@media (max-width: 768px) {
+    .sidebar-toggle {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+        margin-right: 0.75rem;
+    }
+    
+    .sidebar-toggle:hover {
+        transform: translateY(-1px) scale(1.03);
+    }
+    
+    .sidebar-toggle:active {
+        transform: translateY(0) scale(0.97);
+    }
+    
+    .sidebar-toggle.clicked::after {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* Tablet Responsive Design */
+@media (min-width: 769px) and (max-width: 1023px) {
+    .sidebar-toggle {
+        width: 46px;
+        height: 46px;
+        font-size: 1.0625rem;
+    }
+    
+    .sidebar-toggle.clicked::after {
+        width: 110px;
+        height: 110px;
+    }
+}
+
+/* Desktop Responsive Design */
+@media (min-width: 1024px) {
+    .sidebar-toggle {
+        width: 48px;
+        height: 48px;
+        font-size: 1.125rem;
+    }
+    
+    .sidebar-toggle.clicked::after {
+        width: 120px;
+        height: 120px;
+    }
+}
+
+/* High DPI Display Support */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    .sidebar-toggle {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    }
+    
+    .sidebar-toggle:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.35);
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .sidebar-toggle {
+        background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    }
+    
+    .sidebar-toggle:hover {
+        background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .sidebar-toggle {
+        transition: none;
+    }
+    
+    .sidebar-toggle:hover {
+        transform: none;
+    }
+    
+    .sidebar-toggle:active {
+        transform: none;
+    }
+    
+    .sidebar-toggle i {
+        transition: none;
+    }
+    
+    .sidebar-toggle:hover i {
+        transform: none;
+    }
+    
+    .sidebar-toggle::before,
+    .sidebar-toggle::after {
+        transition: none;
+    }
+    
+    .sidebar-toggle.clicked::after {
+        animation: none;
+    }
+    
+    .sidebar-toggle.clicked i {
+        animation: none;
+    }
+}
+
+/* Print Styles */
+@media print {
+    .sidebar-toggle {
+        display: none;
+    }
+}
+
+/* Animation Keyframes */
+@keyframes sidebar-toggle-pulse {
+    0% {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+    100% {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+}
+
+/* Pulse animation for attention */
+.sidebar-toggle.pulse {
+    animation: sidebar-toggle-pulse 2s infinite;
+}
+
+/* Success state - White background */
+.sidebar-toggle.success {
+    background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+    color: #000000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-toggle.success:hover {
+    background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Error state - Black background */
+.sidebar-toggle.error {
+    background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-toggle.error:hover {
+    background: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
+
+/* Warning state - Gray background */
+.sidebar-toggle.warning {
+    background: linear-gradient(135deg, #666666 0%, #333333 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.sidebar-toggle.warning:hover {
+    background: linear-gradient(135deg, #333333 0%, #000000 100%);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+}
