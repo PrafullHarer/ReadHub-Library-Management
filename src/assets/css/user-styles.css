@@ -138,9 +138,8 @@ body {
 }
 
 .nav-container .sidebar-toggle {
-    order: -1; /* Place toggle button first (leftmost) */
+    order: -1; /* Place toggle button first */
     margin-right: 1rem;
-    margin-left: 0; /* Remove any left margin */
 }
 
 .nav-brand {
@@ -317,6 +316,7 @@ body {
         margin-left: 0;
         width: 100%;
     }
+}
     
     .sidebar.collapsed .sidebar-header {
         padding: 0 1rem 2rem;

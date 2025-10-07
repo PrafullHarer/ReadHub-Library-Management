@@ -4,7 +4,7 @@
    Black & White Color Scheme with Click Effects
    ======================================== */
 
-/* Sidebar Toggle - Fixed in Header (Leftmost Position) */
+/* Sidebar Toggle - Fixed in Header */
 .sidebar-toggle {
     display: flex;
     align-items: center;
@@ -19,11 +19,9 @@
     cursor: pointer;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     margin-right: 1rem;
-    margin-left: 0; /* Ensure no left margin */
     position: relative;
     overflow: hidden;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    order: -1; /* Force to leftmost position */
 }
 
 /* Gradient Overlay Effect */
