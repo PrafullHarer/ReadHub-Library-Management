@@ -1377,24 +1377,30 @@ function displayBorrowedBooks() {
 // Filter borrowed books
 function filterBorrowedBooks() {
     const searchTerm = document.getElementById('borrowedSearch')?.value.toLowerCase() || '';
+    const studentIdTerm = document.getElementById('studentIdSearch')?.value.toLowerCase() || '';
     const statusFilter = document.getElementById('borrowedStatusFilter')?.value || '';
     
-    console.log('Filtering borrowed books:', { searchTerm, statusFilter, totalBooks: borrowedBooks.length });
+    console.log('Filtering borrowed books:', { searchTerm, studentIdTerm, statusFilter, totalBooks: borrowedBooks.length });
     
     filteredBorrowedBooks = borrowedBooks.filter(borrowed => {
+        // General search (book title, author, borrower name, email, ISBN, department, phone)
         const matchesSearch = 
             (borrowed.bookTitle || '').toLowerCase().includes(searchTerm) ||
             (borrowed.author || '').toLowerCase().includes(searchTerm) ||
             (borrowed.borrowerName || '').toLowerCase().includes(searchTerm) ||
             (borrowed.borrowerEmail || '').toLowerCase().includes(searchTerm) ||
             (borrowed.isbn || '').toLowerCase().includes(searchTerm) ||
-            (borrowed.memberDetails?.studentId || '').toLowerCase().includes(searchTerm) ||
             (borrowed.memberDetails?.department || '').toLowerCase().includes(searchTerm) ||
             (borrowed.memberDetails?.phone || '').toLowerCase().includes(searchTerm);
         
+        // Student ID specific search
+        const matchesStudentId = !studentIdTerm || 
+            (borrowed.memberDetails?.studentId || '').toLowerCase().includes(studentIdTerm);
+        
+        // Status filter
         const matchesStatus = !statusFilter || borrowed.status === statusFilter;
         
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStudentId && matchesStatus;
     });
     
     console.log('Filtered results:', filteredBorrowedBooks.length);

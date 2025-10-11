@@ -57,14 +57,8 @@ function handleFormSubmit(e) {
     // Show loading state
     showLoadingState();
     
-    // Simulate form submission (replace with actual API call)
-    console.log('⏳ Simulating form submission...');
-    setTimeout(() => {
-        console.log('✅ Form submission completed');
-        hideLoadingState();
-        showSuccessMessage();
-        form.reset();
-    }, 2000);
+    // Save feedback to Firebase
+    saveFeedbackToFirebase(firstName, lastName, email, phone, subject, message);
 }
 
 function validateForm(firstName, lastName, email, subject, message) {
@@ -293,6 +287,77 @@ function initSocialTracking() {
 
 // Initialize social tracking
 initSocialTracking();
+
+// Firebase feedback saving function
+async function saveFeedbackToFirebase(firstName, lastName, email, phone, subject, message) {
+    try {
+        console.log('🔥 Saving feedback to Firebase...');
+        
+        // Check if Firebase is available
+        if (!window.firebaseDb || !window.addDoc || !window.collection) {
+            console.warn('⚠️ Firebase not available, falling back to simulation');
+            setTimeout(() => {
+                hideLoadingState();
+                showSuccessMessage();
+                document.getElementById('contactForm').reset();
+            }, 2000);
+            return;
+        }
+        
+        // Determine feedback type based on subject content
+        const feedbackType = determineFeedbackType(subject, message);
+        
+        // Create feedback data
+        const feedbackData = {
+            userName: `${firstName} ${lastName}`,
+            userEmail: email,
+            userPhone: phone || '',
+            subject: subject,
+            message: message,
+            type: feedbackType,
+            status: 'new',
+            priority: 'medium',
+            createdAt: new Date(),
+            adminResponse: '',
+            updatedAt: null,
+            updatedBy: null
+        };
+        
+        console.log('📝 Feedback data prepared:', feedbackData);
+        
+        // Save to Firebase
+        await window.addDoc(window.collection(window.firebaseDb, 'feedback'), feedbackData);
+        
+        console.log('✅ Feedback saved successfully to Firebase');
+        hideLoadingState();
+        showSuccessMessage();
+        document.getElementById('contactForm').reset();
+        
+    } catch (error) {
+        console.error('❌ Error saving feedback to Firebase:', error);
+        hideLoadingState();
+        showErrorMessage('Failed to send message. Please try again later.');
+    }
+}
+
+// Determine feedback type based on content
+function determineFeedbackType(subject, message) {
+    const content = (subject + ' ' + message).toLowerCase();
+    
+    if (content.includes('bug') || content.includes('error') || content.includes('problem') || content.includes('issue')) {
+        return 'bug-report';
+    } else if (content.includes('suggest') || content.includes('recommend') || content.includes('improve') || content.includes('enhance')) {
+        return 'suggestion';
+    } else if (content.includes('complaint') || content.includes('angry') || content.includes('disappointed') || content.includes('frustrated')) {
+        return 'complaint';
+    } else if (content.includes('thank') || content.includes('great') || content.includes('excellent') || content.includes('love') || content.includes('amazing')) {
+        return 'compliment';
+    } else if (content.includes('feature') || content.includes('request') || content.includes('add') || content.includes('new functionality')) {
+        return 'feature-request';
+    } else {
+        return 'general';
+    }
+}
 
 // Utility function to format phone number
 function formatPhoneNumber(input) {
