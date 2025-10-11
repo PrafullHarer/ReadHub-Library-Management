@@ -95,6 +95,10 @@
                     <i class="fas fa-chart-bar" aria-hidden="true"></i>
                     <span>Reports</span>
                 </button>
+                <button class="nav-item" data-section="feedback" onclick="showSection('feedback')">
+                    <i class="fas fa-comments" aria-hidden="true"></i>
+                    <span>Feedback Management</span>
+                </button>
             </nav>
         </aside>
 
@@ -253,43 +257,7 @@
                             </tr>
                         </thead>
                         <tbody id="borrowedTableBody">
-                            <!-- Sample borrowed book row -->
-                            <tr>
-                                <td>
-                                    <div class="book-info">
-                                        <h4>Introduction to Algorithms</h4>
-                                        <p>by Thomas H. Cormen</p>
-                                        <small>ISBN: 978-0262033848</small>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="borrower-info">
-                                        <h4>Prafull Mahesh Harer</h4>
-                                        <p>Student ID: 1</p>
-                                        <span class="status-badge active">Active</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="contact-info">
-                                        <p><i class="fas fa-envelope"></i> s@gmail.com</p>
-                                        <p><i class="fas fa-phone"></i> 1234567890</p>
-                                    </div>
-                                </td>
-                                <td>March 15, 2024</td>
-                                <td>April 15, 2024</td>
-                                <td>
-                                    <span class="status-badge active">Active</span>
-                                </td>
-                                <td>
-                                    <div class="action-buttons">
-                                        <button type="button" class="btn-secondary" onclick="returnBook()">
-                                            <i class="fas fa-undo" aria-hidden="true"></i>
-                                            Return Book
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- End sample row -->
+                            <!-- Borrowed books will be populated here -->
                         </tbody>
                     </table>
                 </div>
@@ -347,6 +315,96 @@
                             <p>Chart will be implemented here</p>
                         </div>
                     </div>
+                </div>
+            </section>
+
+            <!-- Feedback Management Section -->
+            <section id="feedback" class="content-section">
+                <div class="section-header">
+                    <h1>Feedback Management</h1>
+                    <p>View and manage user feedback and suggestions</p>
+                </div>
+
+                <!-- Feedback Filters -->
+                <div class="filters-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search" aria-hidden="true"></i>
+                        <input type="text" id="feedbackSearch" placeholder="Search feedback..." onkeyup="filterFeedback()">
+                    </div>
+                    <select id="feedbackStatusFilter" onchange="filterFeedback()">
+                        <option value="">All Feedback</option>
+                        <option value="new">New</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                    <select id="feedbackTypeFilter" onchange="filterFeedback()">
+                        <option value="">All Types</option>
+                        <option value="suggestion">Suggestion</option>
+                        <option value="complaint">Complaint</option>
+                        <option value="compliment">Compliment</option>
+                        <option value="bug-report">Bug Report</option>
+                        <option value="feature-request">Feature Request</option>
+                    </select>
+                </div>
+
+                <!-- Feedback Stats -->
+                <div class="feedback-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-comments" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalFeedback">0</h3>
+                            <p>Total Feedback</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="newFeedback">0</h3>
+                            <p>New Feedback</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tasks" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="inProgressFeedback">0</h3>
+                            <p>In Progress</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="resolvedFeedback">0</h3>
+                            <p>Resolved</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Table -->
+                <div class="table-container">
+                    <table class="data-table" id="feedbackTable">
+                        <thead>
+                            <tr>
+                                <th>Feedback Details</th>
+                                <th>User Information</th>
+                                <th>Type & Priority</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="feedbackTableBody">
+                            <!-- Feedback will be populated here -->
+                        </tbody>
+                    </table>
                 </div>
             </section>
         </main>
@@ -615,6 +673,73 @@
         </div>
     </div>
 
+    <!-- Feedback Details Modal -->
+    <div id="feedbackModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h2>Feedback Details</h2>
+                <button class="modal-close" onclick="closeFeedbackModal()">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="feedback-details">
+                <div class="feedback-info">
+                    <div class="feedback-header">
+                        <div class="feedback-meta">
+                            <span class="feedback-type" id="feedbackTypeDisplay"></span>
+                            <span class="feedback-priority" id="feedbackPriorityDisplay"></span>
+                            <span class="feedback-status" id="feedbackStatusDisplay"></span>
+                        </div>
+                        <div class="feedback-date">
+                            <i class="fas fa-calendar" aria-hidden="true"></i>
+                            <span id="feedbackDateDisplay"></span>
+                        </div>
+                    </div>
+                    <div class="feedback-content">
+                        <h3>Feedback Message</h3>
+                        <div class="feedback-message" id="feedbackMessageDisplay"></div>
+                    </div>
+                    <div class="feedback-user">
+                        <h3>User Information</h3>
+                        <div class="user-details" id="feedbackUserDisplay"></div>
+                    </div>
+                </div>
+                <div class="feedback-actions">
+                    <h3>Admin Actions</h3>
+                    <form id="feedbackActionForm">
+                        <input type="hidden" id="feedbackId" name="feedbackId">
+                        <div class="form-group">
+                            <label for="feedbackStatus">Update Status</label>
+                            <select id="feedbackStatus" name="status">
+                                <option value="new">New</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="resolved">Resolved</option>
+                                <option value="closed">Closed</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="feedbackPriority">Priority Level</label>
+                            <select id="feedbackPriority" name="priority">
+                                <option value="low">Low</option>
+                                <option value="medium">Medium</option>
+                                <option value="high">High</option>
+                                <option value="urgent">Urgent</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="adminResponse">Admin Response</label>
+                            <textarea id="adminResponse" name="adminResponse" rows="4" placeholder="Add your response or notes about this feedback..."></textarea>
+                        </div>
+                        <div class="modal-actions">
+                            <button type="button" class="btn-secondary" onclick="closeFeedbackModal()">Close</button>
+                            <button type="submit" class="btn-primary">Update Feedback</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Message Containers -->
     <div id="errorMessage" class="message-container error-message" style="display: none;" role="alert">
         <div class="message-content">
@@ -724,14 +849,6 @@
         window.closeEditBookModal = closeEditBookModal;
         window.filterBooks = filterBooks;
         window.hideMessage = hideMessage;
-        // Return Book Function
-        function returnBook() {
-            if (confirm('Are you sure you want to mark this book as returned?')) {
-                // In a real application, you would implement the return book functionality
-                alert('Book has been marked as returned successfully!');
-                console.log('Book returned');
-            }
-        }
     </script>
 
 

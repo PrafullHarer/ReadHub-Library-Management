@@ -5,6 +5,8 @@ let currentUser = null;
 let books = [];
 let users = [];
 let filteredBooks = [];
+let feedback = [];
+let filteredFeedback = [];
 
 // Initialize admin dashboard
 function initializeAdminDashboard() {
@@ -21,6 +23,14 @@ function initializeAdminDashboard() {
             }
         }, 1000);
     }
+    
+    // Also load borrowed books initially as a fallback
+    setTimeout(() => {
+        if (borrowedBooks.length === 0) {
+            console.log('Loading borrowed books as fallback...');
+            loadBorrowedBooks();
+        }
+    }, 2000);
 }
 
 // Check admin status
@@ -90,6 +100,7 @@ async function loadDashboardData() {
         await Promise.all([
             loadBooks(),
             loadUsers(),
+            loadFeedback(),
             loadStats()
         ]);
     } catch (error) {
@@ -142,6 +153,23 @@ async function loadMembers() {
         console.error('Error loading members:', error);
         showMessage('Error loading members.', 'error');
         return [];
+    }
+}
+
+// Load feedback from Firestore
+async function loadFeedback() {
+    try {
+        const feedbackSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'feedback'));
+        feedback = [];
+        feedbackSnapshot.forEach(doc => {
+            feedback.push({ id: doc.id, ...doc.data() });
+        });
+        filteredFeedback = [...feedback];
+        renderFeedbackTable();
+        updateFeedbackStats();
+    } catch (error) {
+        console.error('Error loading feedback:', error);
+        showMessage('Error loading feedback.', 'error');
     }
 }
 
@@ -222,6 +250,96 @@ function renderUsersTable() {
         `;
         tbody.appendChild(row);
     });
+}
+
+// Render feedback table
+function renderFeedbackTable() {
+    const tbody = document.getElementById('feedbackTableBody');
+    if (!tbody) return;
+    
+    tbody.innerHTML = '';
+
+    if (filteredFeedback.length === 0) {
+        tbody.innerHTML = `
+            <tr class="no-data">
+                <td colspan="6">
+                    <div class="no-data-message">
+                        <i class="fas fa-comments" aria-hidden="true"></i>
+                        <p>No feedback found</p>
+                        <small>User feedback will appear here</small>
+                    </div>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    filteredFeedback.forEach(feedbackItem => {
+        const row = document.createElement('tr');
+        const statusClass = getFeedbackStatusClass(feedbackItem.status);
+        const typeClass = getFeedbackTypeClass(feedbackItem.type);
+        const priorityClass = getFeedbackPriorityClass(feedbackItem.priority);
+        
+        row.innerHTML = `
+            <td>
+                <div class="feedback-info">
+                    <h4>${feedbackItem.subject || 'No Subject'}</h4>
+                    <p class="feedback-preview">${feedbackItem.message ? feedbackItem.message.substring(0, 100) + (feedbackItem.message.length > 100 ? '...' : '') : 'No message'}</p>
+                </div>
+            </td>
+            <td>
+                <div class="user-info">
+                    <strong>${feedbackItem.userName || 'Anonymous'}</strong>
+                    <p>${feedbackItem.userEmail || 'No email'}</p>
+                </div>
+            </td>
+            <td>
+                <div class="feedback-meta">
+                    <span class="feedback-type-badge ${typeClass}">${feedbackItem.type || 'general'}</span>
+                    <span class="priority-badge ${priorityClass}">${feedbackItem.priority || 'medium'}</span>
+                </div>
+            </td>
+            <td>
+                <span class="status-badge ${statusClass}">${feedbackItem.status || 'new'}</span>
+            </td>
+            <td>${formatDate(feedbackItem.createdAt)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn-action btn-primary" onclick="openFeedbackModal('${feedbackItem.id}')" title="View Details">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn-action btn-warning" onclick="updateFeedbackStatus('${feedbackItem.id}', 'in-progress')" title="Mark In Progress">
+                        <i class="fas fa-play"></i>
+                    </button>
+                    <button class="btn-action btn-success" onclick="updateFeedbackStatus('${feedbackItem.id}', 'resolved')" title="Mark Resolved">
+                        <i class="fas fa-check"></i>
+                    </button>
+                    <button class="btn-action btn-danger" onclick="deleteFeedback('${feedbackItem.id}')" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+}
+
+// Update feedback statistics
+function updateFeedbackStats() {
+    const totalFeedback = feedback.length;
+    const newFeedback = feedback.filter(f => f.status === 'new').length;
+    const inProgressFeedback = feedback.filter(f => f.status === 'in-progress').length;
+    const resolvedFeedback = feedback.filter(f => f.status === 'resolved').length;
+
+    const totalElement = document.getElementById('totalFeedback');
+    const newElement = document.getElementById('newFeedback');
+    const inProgressElement = document.getElementById('inProgressFeedback');
+    const resolvedElement = document.getElementById('resolvedFeedback');
+
+    if (totalElement) totalElement.textContent = totalFeedback;
+    if (newElement) newElement.textContent = newFeedback;
+    if (inProgressElement) inProgressElement.textContent = inProgressFeedback;
+    if (resolvedElement) resolvedElement.textContent = resolvedFeedback;
 }
 
 // Show section
@@ -655,6 +773,165 @@ function filterBooks() {
     renderBooksTable();
 }
 
+// Filter feedback
+function filterFeedback() {
+    const searchTerm = document.getElementById('feedbackSearch')?.value.toLowerCase() || '';
+    const statusFilter = document.getElementById('feedbackStatusFilter')?.value || '';
+    const typeFilter = document.getElementById('feedbackTypeFilter')?.value || '';
+
+    filteredFeedback = feedback.filter(feedbackItem => {
+        const matchesSearch = 
+            (feedbackItem.subject || '').toLowerCase().includes(searchTerm) ||
+            (feedbackItem.message || '').toLowerCase().includes(searchTerm) ||
+            (feedbackItem.userName || '').toLowerCase().includes(searchTerm) ||
+            (feedbackItem.userEmail || '').toLowerCase().includes(searchTerm);
+        
+        const matchesStatus = !statusFilter || feedbackItem.status === statusFilter;
+        const matchesType = !typeFilter || feedbackItem.type === typeFilter;
+        
+        return matchesSearch && matchesStatus && matchesType;
+    });
+
+    renderFeedbackTable();
+}
+
+// Open feedback modal
+function openFeedbackModal(feedbackId) {
+    const feedbackItem = feedback.find(f => f.id === feedbackId);
+    if (!feedbackItem) {
+        showMessage('Feedback not found.', 'error');
+        return;
+    }
+
+    // Populate modal with feedback data
+    document.getElementById('feedbackId').value = feedbackItem.id;
+    document.getElementById('feedbackTypeDisplay').textContent = feedbackItem.type || 'General';
+    document.getElementById('feedbackPriorityDisplay').textContent = feedbackItem.priority || 'Medium';
+    document.getElementById('feedbackStatusDisplay').textContent = feedbackItem.status || 'New';
+    document.getElementById('feedbackDateDisplay').textContent = formatDate(feedbackItem.createdAt);
+    document.getElementById('feedbackMessageDisplay').textContent = feedbackItem.message || 'No message provided';
+    
+    // User information
+    const userInfo = `
+        <div class="user-detail">
+            <strong>Name:</strong> ${feedbackItem.userName || 'Anonymous'}
+        </div>
+        <div class="user-detail">
+            <strong>Email:</strong> ${feedbackItem.userEmail || 'Not provided'}
+        </div>
+        ${feedbackItem.userPhone ? `
+        <div class="user-detail">
+            <strong>Phone:</strong> ${feedbackItem.userPhone}
+        </div>` : ''}
+    `;
+    document.getElementById('feedbackUserDisplay').innerHTML = userInfo;
+
+    // Set form values
+    document.getElementById('feedbackStatus').value = feedbackItem.status || 'new';
+    document.getElementById('feedbackPriority').value = feedbackItem.priority || 'medium';
+    document.getElementById('adminResponse').value = feedbackItem.adminResponse || '';
+
+    // Show modal
+    document.getElementById('feedbackModal').classList.add('active');
+}
+
+// Close feedback modal
+function closeFeedbackModal() {
+    document.getElementById('feedbackModal').classList.remove('active');
+    document.getElementById('feedbackActionForm').reset();
+}
+
+// Update feedback status
+async function updateFeedbackStatus(feedbackId, newStatus) {
+    try {
+        await window.updateDoc(window.doc(window.firebaseDb, 'feedback', feedbackId), {
+            status: newStatus,
+            updatedAt: new Date(),
+            updatedBy: currentUser.uid
+        });
+        
+        showMessage(`Feedback status updated to ${newStatus}!`, 'success');
+        loadFeedback();
+    } catch (error) {
+        console.error('Error updating feedback status:', error);
+        showMessage('Error updating feedback status.', 'error');
+    }
+}
+
+// Delete feedback
+async function deleteFeedback(feedbackId) {
+    if (confirm('Are you sure you want to delete this feedback? This action cannot be undone.')) {
+        try {
+            await window.deleteDoc(window.doc(window.firebaseDb, 'feedback', feedbackId));
+            showMessage('Feedback deleted successfully!', 'success');
+            loadFeedback();
+        } catch (error) {
+            console.error('Error deleting feedback:', error);
+            showMessage('Error deleting feedback.', 'error');
+        }
+    }
+}
+
+// Handle feedback action form submission
+async function handleFeedbackAction(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const feedbackId = formData.get('feedbackId');
+    const status = formData.get('status');
+    const priority = formData.get('priority');
+    const adminResponse = formData.get('adminResponse');
+    
+    try {
+        await window.updateDoc(window.doc(window.firebaseDb, 'feedback', feedbackId), {
+            status: status,
+            priority: priority,
+            adminResponse: adminResponse,
+            updatedAt: new Date(),
+            updatedBy: currentUser.uid
+        });
+        
+        showMessage('Feedback updated successfully!', 'success');
+        closeFeedbackModal();
+        loadFeedback();
+    } catch (error) {
+        console.error('Error updating feedback:', error);
+        showMessage('Error updating feedback.', 'error');
+    }
+}
+
+// Helper functions for feedback styling
+function getFeedbackStatusClass(status) {
+    switch (status) {
+        case 'new': return 'status-new';
+        case 'in-progress': return 'status-in-progress';
+        case 'resolved': return 'status-resolved';
+        case 'closed': return 'status-closed';
+        default: return 'status-default';
+    }
+}
+
+function getFeedbackTypeClass(type) {
+    switch (type) {
+        case 'suggestion': return 'type-suggestion';
+        case 'complaint': return 'type-complaint';
+        case 'compliment': return 'type-compliment';
+        case 'bug-report': return 'type-bug-report';
+        case 'feature-request': return 'type-feature-request';
+        default: return 'type-general';
+    }
+}
+
+function getFeedbackPriorityClass(priority) {
+    switch (priority) {
+        case 'low': return 'priority-low';
+        case 'medium': return 'priority-medium';
+        case 'high': return 'priority-high';
+        case 'urgent': return 'priority-urgent';
+        default: return 'priority-medium';
+    }
+}
+
 
 // Handle logout
 async function handleLogout() {
@@ -713,6 +990,12 @@ function setupEventListeners() {
     const editUserForm = document.getElementById('editUserForm');
     if (editUserForm) {
         editUserForm.addEventListener('submit', handleEditUser);
+    }
+
+    // Feedback action form
+    const feedbackActionForm = document.getElementById('feedbackActionForm');
+    if (feedbackActionForm) {
+        feedbackActionForm.addEventListener('submit', handleFeedbackAction);
     }
 
     // Close modals when clicking outside
@@ -876,6 +1159,7 @@ let filteredBorrowedBooks = [];
 // Load borrowed books data from Firestore with member details
 async function loadBorrowedBooks() {
     try {
+        console.log('Loading borrowed books...');
         
         // Fetch borrowed books from Firestore
         const borrowedSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'borrowedBooks'));
@@ -886,6 +1170,8 @@ async function loadBorrowedBooks() {
         borrowedSnapshot.forEach(doc => {
             borrowedData.push({ id: doc.id, ...doc.data() });
         });
+        
+        console.log('Found borrowed books:', borrowedData.length);
         
         
         // Fetch member details and book details for each borrowed book
@@ -976,6 +1262,7 @@ async function loadBorrowedBooks() {
         borrowedBooks.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
         
         filteredBorrowedBooks = [...borrowedBooks];
+        console.log('Loaded borrowed books:', borrowedBooks.length);
         displayBorrowedBooks();
         
         
@@ -989,7 +1276,12 @@ async function loadBorrowedBooks() {
 function displayBorrowedBooks() {
     const tbody = document.getElementById('borrowedTableBody');
     
-    if (!tbody) return;
+    if (!tbody) {
+        console.error('Borrowed table body not found');
+        return;
+    }
+    
+    console.log('Displaying borrowed books:', filteredBorrowedBooks.length);
     
     if (filteredBorrowedBooks.length === 0) {
         tbody.innerHTML = `
@@ -1086,21 +1378,26 @@ function displayBorrowedBooks() {
 function filterBorrowedBooks() {
     const searchTerm = document.getElementById('borrowedSearch')?.value.toLowerCase() || '';
     const statusFilter = document.getElementById('borrowedStatusFilter')?.value || '';
+    
+    console.log('Filtering borrowed books:', { searchTerm, statusFilter, totalBooks: borrowedBooks.length });
+    
     filteredBorrowedBooks = borrowedBooks.filter(borrowed => {
         const matchesSearch = 
-            borrowed.bookTitle.toLowerCase().includes(searchTerm) ||
-            borrowed.author.toLowerCase().includes(searchTerm) ||
-            borrowed.borrowerName.toLowerCase().includes(searchTerm) ||
-            borrowed.borrowerEmail.toLowerCase().includes(searchTerm) ||
-            borrowed.borrowerIdNumber.toLowerCase().includes(searchTerm) ||
-            borrowed.borrowerDepartment.toLowerCase().includes(searchTerm) ||
-            borrowed.isbn.toLowerCase().includes(searchTerm);
+            (borrowed.bookTitle || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.author || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.borrowerName || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.borrowerEmail || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.isbn || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.memberDetails?.studentId || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.memberDetails?.department || '').toLowerCase().includes(searchTerm) ||
+            (borrowed.memberDetails?.phone || '').toLowerCase().includes(searchTerm);
         
         const matchesStatus = !statusFilter || borrowed.status === statusFilter;
         
         return matchesSearch && matchesStatus;
     });
     
+    console.log('Filtered results:', filteredBorrowedBooks.length);
     displayBorrowedBooks();
 }
 
@@ -1233,7 +1530,7 @@ ${memberDetails.notes || 'No additional notes'}
     }
 }
 
-// Enhanced showSection function to load borrowed books when section is shown
+// Enhanced showSection function to load data when section is shown
 function showSection(sectionName) {
     // Hide all sections
     document.querySelectorAll('.content-section').forEach(section => {
@@ -1251,11 +1548,18 @@ function showSection(sectionName) {
     // Add active class to selected nav item
     document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
     
-    // Load borrowed books data when borrowed section is shown
+    // Load data when specific sections are shown
     if (sectionName === 'borrowed') {
-        // Since real-time listener is active, just display current data
-        // Don't reload to avoid duplicates
-        displayBorrowedBooks();
+        // If no borrowed books data is loaded yet, load it
+        if (borrowedBooks.length === 0) {
+            loadBorrowedBooks();
+        } else {
+            // Since real-time listener is active, just display current data
+            displayBorrowedBooks();
+        }
+    } else if (sectionName === 'feedback') {
+        // Load feedback data when feedback section is shown
+        loadFeedback();
     }
 }
 
@@ -1283,6 +1587,12 @@ window.filterBorrowedBooks = filterBorrowedBooks;
 window.markAsReturned = markAsReturned;
 window.extendDueDate = extendDueDate;
 window.viewBorrowerDetails = viewBorrowerDetails;
+window.filterFeedback = filterFeedback;
+window.openFeedbackModal = openFeedbackModal;
+window.closeFeedbackModal = closeFeedbackModal;
+window.updateFeedbackStatus = updateFeedbackStatus;
+window.deleteFeedback = deleteFeedback;
+window.handleFeedbackAction = handleFeedbackAction;
 
 // Sidebar functionality - Works for both Mobile and Desktop
 let sidebarOpen = false;
