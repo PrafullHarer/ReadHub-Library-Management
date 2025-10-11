@@ -1,28 +1,58 @@
 # 📚 ReadHub Library Management System
 
-A modern, web-based library management system built with HTML, CSS, JavaScript, and Firebase. ReadHub provides comprehensive tools for managing books, users, and library operations with separate interfaces for administrators and students.
+A modern, comprehensive library management system built with HTML, CSS, JavaScript, and Firebase. Designed for educational institutions to efficiently manage books, users, borrowing, and feedback.
 
 ## 🌟 Features
 
-### 👨‍💼 Admin Dashboard
-- **User Management**: Add, edit, and manage student/member accounts
-- **Book Management**: Add, edit, and organize library books
-- **Borrowed Books Tracking**: Monitor currently borrowed books and due dates
-- **Reports & Analytics**: View library statistics and trends
-- **Real-time Updates**: Live data synchronization with Firebase
+### 🔐 Authentication & User Management
+- **Secure Login System** with Firebase Authentication
+- **Role-based Access Control** (Admin/User)
+- **User Registration** with detailed member profiles
+- **Password Management** and account security
 
-### 👨‍🎓 Student Dashboard
-- **Book Browsing**: Search and filter available books
-- **Borrowing System**: Request and manage book borrows
-- **Personal Library**: View borrowed books and borrowing history
-- **Profile Management**: Update personal information
-- **Due Date Tracking**: Monitor return deadlines
+### 📖 Book Management
+- **Complete Book Catalog** with ISBN, author, title tracking
+- **Book Availability Status** (Available, Borrowed, Maintenance)
+- **Book Condition Tracking** (Excellent, Good, Fair, Poor)
+- **Advanced Search & Filtering** by title, author, ISBN
+- **Add/Edit/Delete Books** functionality
 
-### 🔐 Authentication System
-- **Secure Login**: Email/password authentication with Firebase Auth
-- **Role-based Access**: Separate admin and student interfaces
-- **Session Management**: Remember me functionality
-- **Account Creation**: Admin can create new user accounts
+### 👥 User Management
+- **Student/Member Profiles** with academic information
+- **Department & Year Tracking**
+- **Contact Information Management**
+- **Account Status Management** (Active, Pending, Suspended)
+- **Library Card Number Generation**
+
+### 📚 Borrowing System
+- **Book Borrowing & Return** tracking
+- **Due Date Management** with automatic overdue detection
+- **Borrowing History** for each user
+- **Advanced Search** by book title, borrower name, student ID
+- **Real-time Status Updates**
+
+### 💬 Feedback Management
+- **Contact Form Integration** for user feedback
+- **Automatic Feedback Classification** (Bug Report, Suggestion, Complaint, Compliment, Feature Request)
+- **Admin Response System**
+- **Feedback Status Tracking** (New, In Progress, Resolved, Closed)
+- **Priority Management** (Low, Medium, High, Urgent)
+
+### 📊 Admin Dashboard
+- **Comprehensive Overview** with key statistics
+- **Real-time Data Updates**
+- **Advanced Filtering & Search** capabilities
+- **User Management Tools**
+- **Book Management Interface**
+- **Borrowing Oversight**
+- **Feedback Management System**
+
+### 🎨 Modern UI/UX
+- **Responsive Design** for all devices
+- **Dark/Light Theme Support**
+- **Smooth Animations** and transitions
+- **Intuitive Navigation**
+- **Accessibility Features**
 
 ## 🚀 Getting Started
 
@@ -40,169 +70,363 @@ A modern, web-based library management system built with HTML, CSS, JavaScript, 
    ```
 
 2. **Firebase Setup**
-   - Create a new Firebase project at [Firebase Console](https://console.firebase.google.com/)
+   - Create a Firebase project at [Firebase Console](https://console.firebase.google.com/)
    - Enable Authentication and Firestore Database
-   - Update Firebase configuration in `src/assets/js/firebase-init.js`
+   - Update Firebase configuration in `src/config/firebase-config.js`
 
-3. **Firebase Configuration**
-   ```javascript
-   const firebaseConfig = {
-       apiKey: "your-api-key",
-       authDomain: "your-project.firebaseapp.com",
-       projectId: "your-project-id",
-       storageBucket: "your-project.appspot.com",
-       messagingSenderId: "your-sender-id",
-       appId: "your-app-id"
-   };
-   ```
-
-4. **Firestore Security Rules**
+3. **Configure Firestore Security Rules**
    ```javascript
    rules_version = '2';
    service cloud.firestore {
      match /databases/{database}/documents {
-       match /users/{userId} {
-         allow read, write: if request.auth != null && request.auth.uid == userId;
-       }
-       match /books/{bookId} {
-         allow read: if request.auth != null;
-         allow write: if request.auth != null && 
+       
+       // Helper function to check if user is admin
+       function isAdmin() {
+         return request.auth != null && 
+           exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
            get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+       }
+
+       // Users collection
+       match /users/{userId} {
+         allow read: if request.auth != null && 
+           (request.auth.uid == userId || isAdmin());
+         allow create, update, delete: if isAdmin();
+       }
+
+       // Members collection
+       match /members/{memberId} {
+         allow read: if request.auth != null && (
+           resource.data.userId == request.auth.uid ||
+           isAdmin()
+         );
+         allow create, update, delete: if isAdmin();
+       }
+
+       // Books collection
+       match /books/{bookId} {
+         allow read: if true;
+         allow create, delete: if isAdmin();
+         allow update: if request.auth != null && (
+           isAdmin() ||
+           (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['availability']))
+         );
+       }
+
+       // Borrowed books collection
+       match /borrowedBooks/{borrowId} {
+         allow read: if request.auth != null && (
+           resource.data.borrowerId == request.auth.uid ||
+           isAdmin()
+         );
+         allow create: if request.auth != null && 
+           request.resource.data.borrowerId == request.auth.uid;
+         allow update, delete: if request.auth != null && (
+           resource.data.borrowerId == request.auth.uid ||
+           isAdmin()
+         );
+       }
+
+       // Feedback collection
+       match /feedback/{feedbackId} {
+         allow write: if true; // Anyone can submit feedback
+         allow read: if isAdmin(); // Only admins can read feedback
+       }
+
+       // Reports collection
+       match /reports/{reportId} {
+         allow read, write: if isAdmin();
+       }
+
+       // Activity logs
+       match /activityLogs/{logId} {
+         allow read, write: if isAdmin();
+       }
+
+       // Settings collection
+       match /settings/{settingId} {
+         allow read, write: if isAdmin();
+       }
+
+       // Default fallback rule
+       match /{document=**} {
+         allow read, write: if request.auth != null;
        }
      }
    }
    ```
 
-5. **Run the Application**
+4. **Run the Application**
    - Open `index.html` in your web browser
    - Or use a local server:
-   ```bash
-   # Using Python
-   python -m http.server 8000
-   
-   # Using Node.js
-   npx http-server
-   ```
+     ```bash
+     # Using Python
+     python -m http.server 8000
+     
+     # Using Node.js
+     npx http-server
+     
+     # Using PHP
+     php -S localhost:8000
+     ```
 
 ## 📁 Project Structure
 
 ```
 library-management/
-├── index.html                 # Main landing page
 ├── src/
-│   ├── pages/
-│   │   ├── login.html         # Login page
-│   │   ├── welcome.html       # Welcome page
-│   │   ├── admin-dashboard.html # Admin interface
-│   │   ├── user-dashboard.html  # Student interface
-│   │   └── contact.html       # Contact page
 │   ├── assets/
 │   │   ├── css/
-│   │   │   ├── styles.css     # Main styles
-│   │   │   ├── login-styles.css
-│   │   │   ├── admin-styles.css
-│   │   │   ├── user-styles.css
-│   │   │   └── contact-styles.css
+│   │   │   ├── admin-styles.css      # Admin dashboard styles
+│   │   │   ├── contact-styles.css   # Contact page styles
+│   │   │   ├── login-styles.css     # Login page styles
+│   │   │   ├── sidebar-button.css   # Sidebar component styles
+│   │   │   ├── styles.css           # Main application styles
+│   │   │   └── user-styles.css      # User dashboard styles
 │   │   └── js/
-│   │       ├── firebase-init.js # Firebase configuration
-│   │       ├── auth.js         # Authentication logic
-│   │       ├── admin.js        # Admin dashboard functionality
-│   │       ├── user-dashboard.js # Student dashboard functionality
-│   │       └── contact.js     # Contact form handling
+│   │       ├── admin.js             # Admin dashboard functionality
+│   │       ├── auth.js              # Authentication logic
+│   │       ├── contact.js           # Contact form functionality
+│   │       ├── firebase-init.js     # Firebase initialization
+│   │       ├── script.js            # Main application script
+│   │       └── user-dashboard.js    # User dashboard functionality
 │   ├── config/
-│   │   ├── config.js          # Firebase configuration
-│   │   └── firebase-config.js # Firebase setup
-│   └── docs/
-│       ├── README.md          # Documentation
-│       └── FIREBASE_SETUP.md  # Firebase setup guide
-└── README.md                  # This file
+│   │   ├── config.template.js       # Configuration template
+│   │   └── firebase-config.js       # Firebase configuration
+│   ├── docs/
+│   │   ├── FIREBASE_SETUP.md       # Firebase setup guide
+│   │   └── README.md               # Documentation
+│   └── pages/
+│       ├── admin-dashboard.html     # Admin dashboard page
+│       ├── contact.html             # Contact page
+│       ├── login.html               # Login page
+│       ├── user-dashboard.html      # User dashboard page
+│       └── welcome.html             # Welcome page
+├── create-admin.html                # Admin creation utility
+├── index.html                      # Main entry point
+├── readhub.env                     # Environment configuration
+└── README.md                       # This file
 ```
 
 ## 🔧 Configuration
 
-### Firebase Collections Structure
+### Firebase Configuration
+Update `src/config/firebase-config.js` with your Firebase project details:
 
-#### Users Collection (`users`)
+```javascript
+const firebaseConfig = {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project.firebaseio.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "your-sender-id",
+  appId: "your-app-id",
+  measurementId: "your-measurement-id"
+};
+```
+
+### Environment Variables
+Create a `.env` file or update `readhub.env`:
+
+```env
+FIREBASE_API_KEY=your-api-key
+FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=your-sender-id
+FIREBASE_APP_ID=your-app-id
+```
+
+## 👥 User Roles
+
+### 🔑 Admin
+- Full system access
+- User management (create, edit, delete users)
+- Book management (add, edit, delete books)
+- Borrowing oversight
+- Feedback management
+- System reports and analytics
+
+### 👤 User/Student
+- View available books
+- Borrow and return books
+- View personal borrowing history
+- Submit feedback through contact form
+- Update personal profile information
+
+## 📱 Features by Page
+
+### 🏠 Welcome Page (`welcome.html`)
+- System introduction
+- Navigation to login/contact
+- Feature highlights
+
+### 🔐 Login Page (`login.html`)
+- Secure authentication
+- Role-based redirection
+- Password recovery (if implemented)
+
+### 👤 User Dashboard (`user-dashboard.html`)
+- Personal book borrowing history
+- Available books catalog
+- Profile management
+- Book search and filtering
+
+### 🔧 Admin Dashboard (`admin-dashboard.html`)
+- **Overview Section**: Key statistics and metrics
+- **Book Management**: Add, edit, delete books
+- **Borrowed Books**: Track all borrowing activities with advanced search
+- **User Management**: Manage students and members
+- **Reports**: Analytics and insights
+- **Feedback Management**: Handle user feedback and suggestions
+
+### 📞 Contact Page (`contact.html`)
+- Team information
+- Contact details
+- Feedback submission form
+- Automatic feedback classification
+
+## 🔍 Search & Filtering
+
+### Book Search
+- Search by title, author, ISBN
+- Filter by availability status
+- Filter by book condition
+
+### Borrowed Books Search
+- General search (book title, author, borrower name, email, ISBN, department, phone)
+- **Student ID specific search** (dedicated search box)
+- Filter by borrowing status (Active, Overdue, Returned)
+
+### Feedback Search
+- Search by subject, message content, user name, email
+- Filter by feedback type (Suggestion, Complaint, Compliment, Bug Report, Feature Request)
+- Filter by status (New, In Progress, Resolved, Closed)
+
+## 🛡️ Security Features
+
+- **Firebase Authentication** for secure user management
+- **Role-based access control** with admin/user separation
+- **Firestore security rules** for data protection
+- **Input validation** on all forms
+- **XSS protection** through proper data sanitization
+- **CSRF protection** through Firebase security
+
+## 🎨 Design System
+
+### Color Scheme
+- **Primary**: Black (#000000)
+- **Background**: White (#ffffff)
+- **Accent**: Various shades of black for different states
+- **Status Colors**: Success, Warning, Danger (all using black theme)
+
+### Typography
+- **Primary Font**: System fonts for optimal performance
+- **Headings**: Bold weights for hierarchy
+- **Body Text**: Regular weights for readability
+
+### Components
+- **Cards**: Clean, minimal design with subtle shadows
+- **Buttons**: Consistent styling with hover effects
+- **Forms**: User-friendly with validation feedback
+- **Tables**: Responsive with sorting and filtering
+- **Modals**: Clean overlay design for forms
+
+## 📊 Data Structure
+
+### Collections
+
+#### Users Collection
 ```javascript
 {
-  uid: "user-id",
-  email: "user@example.com",
-  fullName: "John Doe",
-  role: "user" | "admin",
-  status: "active" | "pending" | "suspended",
-  registrationDate: "2024-01-01T00:00:00Z",
-  lastLogin: "2024-01-01T00:00:00Z"
+  email: string,
+  fullName: string,
+  role: 'admin' | 'user',
+  status: 'active' | 'pending' | 'suspended',
+  joinedDate: timestamp,
+  lastLogin: timestamp
 }
 ```
 
-#### Books Collection (`books`)
+#### Members Collection
 ```javascript
 {
-  title: "Book Title",
-  author: "Author Name",
-  isbn: "978-1234567890",
-  availability: "available" | "borrowed" | "maintenance",
-  condition: "excellent" | "good" | "fair" | "poor",
-  description: "Book description",
-  addedDate: "2024-01-01T00:00:00Z"
+  userId: string, // Reference to users collection
+  email: string,
+  fullName: string,
+  phone: string,
+  studentId: string,
+  department: string,
+  year: string,
+  address: string,
+  emergencyContact: string,
+  gender: string,
+  dateOfBirth: string,
+  membershipType: 'student' | 'faculty' | 'staff',
+  membershipStatus: 'active' | 'inactive',
+  libraryCardNumber: string,
+  academicYear: string,
+  semester: string,
+  enrollmentDate: timestamp,
+  notes: string,
+  preferences: object,
+  contactMethods: object
 }
 ```
 
-#### Members Collection (`members`)
+#### Books Collection
 ```javascript
 {
-  userId: "user-id",
-  email: "user@example.com",
-  fullName: "John Doe",
-  studentId: "STU001",
-  department: "Computer Science",
-  year: "2nd Year",
-  phone: "+1234567890",
-  address: "123 Main St",
-  membershipType: "student",
-  membershipStatus: "active",
-  libraryCardNumber: "LIB001",
-  createdBy: "admin-id",
-  createdAt: "2024-01-01T00:00:00Z"
+  title: string,
+  author: string,
+  isbn: string,
+  condition: 'excellent' | 'good' | 'fair' | 'poor',
+  availability: 'available' | 'borrowed' | 'maintenance',
+  description: string,
+  addedDate: timestamp,
+  addedBy: string,
+  updatedDate: timestamp,
+  updatedBy: string
 }
 ```
 
-## 🎨 Customization
-
-### Styling
-The application uses CSS custom properties for easy theming:
-
-```css
-:root {
-  --primary-color: #000000;
-  --bg-primary: #ffffff;
-  --text-primary: #000000;
-  --border-color: #000000;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
-  --radius-md: 8px;
-  --transition-base: 0.3s ease;
+#### Borrowed Books Collection
+```javascript
+{
+  bookId: string, // Reference to books collection
+  borrowerId: string, // Reference to users collection
+  bookTitle: string,
+  author: string,
+  isbn: string,
+  borrowerName: string,
+  borrowerEmail: string,
+  borrowerPhone: string,
+  borrowDate: string,
+  dueDate: string,
+  returnDate: string,
+  status: 'active' | 'overdue' | 'returned',
+  extendedCount: number
 }
 ```
 
-### Adding New Features
-1. **New Pages**: Add HTML files to `src/pages/`
-2. **Styling**: Create CSS files in `src/assets/css/`
-3. **Functionality**: Add JavaScript files in `src/assets/js/`
-4. **Firebase**: Update collections and security rules
-
-## 🔍 Debugging
-
-The application includes comprehensive console logging for debugging:
-
-- **🚀 Initialization**: System startup processes
-- **🔐 Authentication**: Login/logout operations
-- **📊 Data Operations**: Loading/saving data
-- **🔍 Search/Filter**: User search activities
-- **⚠️ Warnings**: Non-critical issues
-- **❌ Errors**: Critical failures
-- **✅ Success**: Completed operations
-
-Open browser developer tools (F12) to view detailed logs.
+#### Feedback Collection
+```javascript
+{
+  userName: string,
+  userEmail: string,
+  userPhone: string,
+  subject: string,
+  message: string,
+  type: 'suggestion' | 'complaint' | 'compliment' | 'bug-report' | 'feature-request' | 'general',
+  status: 'new' | 'in-progress' | 'resolved' | 'closed',
+  priority: 'low' | 'medium' | 'high' | 'urgent',
+  createdAt: timestamp,
+  adminResponse: string,
+  updatedAt: timestamp,
+  updatedBy: string
+}
+```
 
 ## 🚀 Deployment
 
@@ -212,49 +436,92 @@ Open browser developer tools (F12) to view detailed logs.
    npm install -g firebase-tools
    ```
 
-2. Initialize Firebase project:
+2. Login to Firebase:
+   ```bash
+   firebase login
+   ```
+
+3. Initialize hosting:
    ```bash
    firebase init hosting
    ```
 
-3. Deploy:
+4. Deploy:
    ```bash
    firebase deploy
    ```
 
-### Other Hosting Platforms
-- **Netlify**: Drag and drop the project folder
-- **Vercel**: Connect your GitHub repository
-- **GitHub Pages**: Enable Pages in repository settings
+### Other Hosting Options
+- **Netlify**: Drag and drop deployment
+- **Vercel**: Git-based deployment
+- **GitHub Pages**: Static site hosting
+- **AWS S3**: Static website hosting
 
-## 📱 Browser Support
+## 🧪 Testing
 
-- Chrome 80+
-- Firefox 75+
-- Safari 13+
-- Edge 80+
+### Manual Testing Checklist
+- [ ] User registration and login
+- [ ] Book management (add, edit, delete)
+- [ ] User management (create, edit, delete users)
+- [ ] Book borrowing and return
+- [ ] Feedback submission and management
+- [ ] Search and filtering functionality
+- [ ] Responsive design on different devices
+- [ ] Admin dashboard functionality
+
+### Browser Compatibility
+- ✅ Chrome 80+
+- ✅ Firefox 75+
+- ✅ Safari 13+
+- ✅ Edge 80+
 
 ## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## 🆘 Support
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👨‍💻 Team
+
+- **Prafull Harer** - Project Director & Lead Developer
+- **Parth Mokal** - UI/UX Designer & Frontend Developer  
+- **Tanish Jadhav** - Backend Developer & Database Specialist
+
+## 📞 Support
 
 For support and questions:
-- Create an issue in the GitHub repository
-- Contact: [prafullharer@gmail.com]
+- **Email**: contact@readhub.com
+- **Phone**: +91 99999 99999
+- **Address**: KIT College of Engineering, Kolhapur, Maharashtra, India
 
-## 🙏 Acknowledgments
+## 🔄 Version History
 
-- Firebase for backend services
-- Font Awesome for icons
-- Modern CSS techniques and best practices
-- Open source community for inspiration
+### v1.0.0 (Current)
+- Initial release
+- Complete library management system
+- Firebase integration
+- Admin and user dashboards
+- Feedback management system
+- Advanced search and filtering
+- Responsive design
+
+## 🎯 Future Enhancements
+
+- [ ] Mobile app development
+- [ ] Advanced analytics and reporting
+- [ ] Email notifications
+- [ ] SMS integration
+- [ ] QR code book management
+- [ ] Multi-language support
+- [ ] API development
+- [ ] Integration with external library systems
 
 ---
 
-**ReadHub Library Management System** - Modernizing library operations with technology.
+**ReadHub Library Management System** - Modernizing library operations for educational institutions worldwide. 📚✨
