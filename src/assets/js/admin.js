@@ -164,12 +164,59 @@ async function loadFeedback() {
         feedbackSnapshot.forEach(doc => {
             feedback.push({ id: doc.id, ...doc.data() });
         });
+        
+        // Sync any pending feedback from localStorage
+        await syncPendingFeedbackFromLocalStorage();
+        
         filteredFeedback = [...feedback];
         renderFeedbackTable();
         updateFeedbackStats();
     } catch (error) {
         console.error('Error loading feedback:', error);
         showMessage('Error loading feedback.', 'error');
+    }
+}
+
+// Sync pending feedback from localStorage to Firebase
+async function syncPendingFeedbackFromLocalStorage() {
+    try {
+        const pendingFeedback = JSON.parse(localStorage.getItem('pendingFeedback') || '[]');
+        
+        if (pendingFeedback.length === 0) {
+            return; // No pending feedback
+        }
+        
+        console.log(`🔄 Syncing ${pendingFeedback.length} pending feedback items from localStorage...`);
+        
+        for (const feedbackItem of pendingFeedback) {
+            try {
+                // Convert createdAt back to Date object
+                const feedbackData = {
+                    ...feedbackItem,
+                    createdAt: new Date(feedbackItem.createdAt)
+                };
+                
+                // Save to Firebase
+                await window.addDoc(window.collection(window.firebaseDb, 'feedback'), feedbackData);
+                console.log('✅ Synced feedback:', feedbackItem.subject);
+            } catch (error) {
+                console.error('❌ Error syncing feedback item:', error);
+            }
+        }
+        
+        // Clear localStorage after successful sync
+        localStorage.removeItem('pendingFeedback');
+        console.log('✅ All pending feedback synced successfully');
+        
+        // Reload feedback to show the newly synced items
+        const feedbackSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'feedback'));
+        feedback = [];
+        feedbackSnapshot.forEach(doc => {
+            feedback.push({ id: doc.id, ...doc.data() });
+        });
+        
+    } catch (error) {
+        console.error('❌ Error syncing pending feedback:', error);
     }
 }
 

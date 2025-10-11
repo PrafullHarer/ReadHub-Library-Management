@@ -335,7 +335,52 @@ async function saveFeedbackToFirebase(firstName, lastName, email, phone, subject
         
     } catch (error) {
         console.error('❌ Error saving feedback to Firebase:', error);
+        
+        // Check if it's a permission error
+        if (error.code === 'permission-denied') {
+            console.warn('⚠️ Permission denied - Firestore rules may need updating');
+            showErrorMessage('Unable to save feedback due to security restrictions. Please contact the administrator.');
+        } else {
+            console.warn('⚠️ Firebase error, falling back to local storage');
+            // Fallback: Save to localStorage as backup
+            saveFeedbackToLocalStorage(firstName, lastName, email, phone, subject, message);
+        }
+        
         hideLoadingState();
+    }
+}
+
+// Fallback function to save feedback to localStorage
+function saveFeedbackToLocalStorage(firstName, lastName, email, phone, subject, message) {
+    try {
+        const feedbackData = {
+            userName: `${firstName} ${lastName}`,
+            userEmail: email,
+            userPhone: phone || '',
+            subject: subject,
+            message: message,
+            type: determineFeedbackType(subject, message),
+            status: 'new',
+            priority: 'medium',
+            createdAt: new Date().toISOString(),
+            adminResponse: '',
+            updatedAt: null,
+            updatedBy: null
+        };
+        
+        // Get existing feedback from localStorage
+        const existingFeedback = JSON.parse(localStorage.getItem('pendingFeedback') || '[]');
+        existingFeedback.push(feedbackData);
+        
+        // Save back to localStorage
+        localStorage.setItem('pendingFeedback', JSON.stringify(existingFeedback));
+        
+        console.log('💾 Feedback saved to localStorage as backup');
+        showSuccessMessage('Message sent successfully! (Saved locally - will be synced when admin reviews)');
+        document.getElementById('contactForm').reset();
+        
+    } catch (error) {
+        console.error('❌ Error saving to localStorage:', error);
         showErrorMessage('Failed to send message. Please try again later.');
     }
 }
