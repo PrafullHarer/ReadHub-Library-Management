@@ -1613,7 +1613,752 @@ function showSection(sectionName) {
     } else if (sectionName === 'feedback') {
         // Load feedback data when feedback section is shown
         loadFeedback();
+    } else if (sectionName === 'reports') {
+        // Initialize reports when reports section is shown
+        initializeReports();
     }
+}
+
+// Reports functionality
+let reportCharts = {};
+let reportData = {};
+
+// Initialize reports when reports section is shown
+function initializeReports() {
+    if (!window.Chart) {
+        console.warn('Chart.js not loaded, reports will not work properly');
+        return;
+    }
+    
+    loadReportData();
+    updateReports();
+}
+
+// Load all report data
+async function loadReportData() {
+    try {
+        const dateRange = document.getElementById('reportDateRange')?.value || '30';
+        const startDate = getDateRangeStart(dateRange);
+        
+        // Load all necessary data
+        await Promise.all([
+            loadBooks(),
+            loadUsers(),
+            loadBorrowedBooks(),
+            loadMembers()
+        ]);
+        
+        // Process report data
+        processReportData(startDate);
+        
+    } catch (error) {
+        console.error('Error loading report data:', error);
+        showMessage('Error loading report data.', 'error');
+    }
+}
+
+// Process report data based on date range
+function processReportData(startDate) {
+    const now = new Date();
+    
+    // Filter data based on date range
+    const filteredBorrowedBooks = borrowedBooks.filter(book => {
+        const borrowDate = new Date(book.borrowDate);
+        return borrowDate >= startDate;
+    });
+    
+    const filteredUsers = users.filter(user => {
+        const joinDate = user.joinedDate ? new Date(user.joinedDate.seconds * 1000) : new Date();
+        return joinDate >= startDate;
+    });
+    
+    // Calculate statistics
+    reportData = {
+        totalBooks: books.length,
+        totalUsers: users.length,
+        activeBorrowings: borrowedBooks.filter(b => b.status === 'active').length,
+        overdueBooks: borrowedBooks.filter(b => b.status === 'overdue').length,
+        totalBorrowings: filteredBorrowedBooks.length,
+        newUsers: filteredUsers.length,
+        popularBooks: calculatePopularBooks(filteredBorrowedBooks),
+        departmentStats: calculateDepartmentStats(),
+        borrowingTrends: calculateBorrowingTrends(filteredBorrowedBooks, startDate),
+        overdueAnalysis: calculateOverdueAnalysis(),
+        userActivity: calculateUserActivity(filteredBorrowedBooks)
+    };
+    
+    updateReportDisplays();
+}
+
+// Calculate popular books
+function calculatePopularBooks(borrowedBooks) {
+    const bookCounts = {};
+    
+    borrowedBooks.forEach(borrow => {
+        const bookTitle = borrow.bookTitle;
+        if (bookCounts[bookTitle]) {
+            bookCounts[bookTitle].count++;
+        } else {
+            bookCounts[bookTitle] = {
+                title: bookTitle,
+                author: borrow.author || 'Unknown',
+                count: 1
+            };
+        }
+    });
+    
+    return Object.values(bookCounts)
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 10);
+}
+
+// Calculate department statistics
+function calculateDepartmentStats() {
+    const departmentCounts = {};
+    
+    users.forEach(user => {
+        // Try to get department from member data
+        const memberData = getMemberDataByUserId(user.id);
+        const department = memberData?.department || 'Unknown';
+        
+        if (departmentCounts[department]) {
+            departmentCounts[department]++;
+        } else {
+            departmentCounts[department] = 1;
+        }
+    });
+    
+    return Object.entries(departmentCounts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+}
+
+// Calculate borrowing trends
+function calculateBorrowingTrends(borrowedBooks, startDate) {
+    const trends = {};
+    const currentDate = new Date();
+    
+    // Create date range
+    for (let d = new Date(startDate); d <= currentDate; d.setDate(d.getDate() + 1)) {
+        const dateKey = d.toISOString().split('T')[0];
+        trends[dateKey] = 0;
+    }
+    
+    // Count borrowings per day
+    borrowedBooks.forEach(borrow => {
+        const borrowDate = new Date(borrow.borrowDate).toISOString().split('T')[0];
+        if (trends[borrowDate] !== undefined) {
+            trends[borrowDate]++;
+        }
+    });
+    
+    return trends;
+}
+
+// Calculate overdue analysis
+function calculateOverdueAnalysis() {
+    const now = new Date();
+    let critical = 0, warning = 0, minor = 0;
+    
+    borrowedBooks.forEach(borrow => {
+        if (borrow.status === 'overdue' || borrow.status === 'active') {
+            const dueDate = new Date(borrow.dueDate);
+            const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
+            
+            if (daysOverdue > 30) {
+                critical++;
+            } else if (daysOverdue > 7) {
+                warning++;
+            } else if (daysOverdue > 0) {
+                minor++;
+            }
+        }
+    });
+    
+    return { critical, warning, minor };
+}
+
+// Calculate user activity
+function calculateUserActivity(borrowedBooks) {
+    const activeUsers = new Set();
+    let totalBorrowTime = 0;
+    let borrowCount = 0;
+    
+    borrowedBooks.forEach(borrow => {
+        activeUsers.add(borrow.borrowerId);
+        
+        if (borrow.returnDate) {
+            const borrowDate = new Date(borrow.borrowDate);
+            const returnDate = new Date(borrow.returnDate);
+            totalBorrowTime += (returnDate - borrowDate) / (1000 * 60 * 60 * 24);
+            borrowCount++;
+        }
+    });
+    
+    return {
+        activeUsers: activeUsers.size,
+        avgBorrowTime: borrowCount > 0 ? Math.round(totalBorrowTime / borrowCount) : 0
+    };
+}
+
+// Update report displays
+function updateReportDisplays() {
+    // Update statistics
+    document.getElementById('totalBooksReport').textContent = reportData.totalBooks;
+    document.getElementById('totalUsersReport').textContent = reportData.totalUsers;
+    document.getElementById('activeBorrowings').textContent = reportData.activeBorrowings;
+    document.getElementById('overdueBooksReport').textContent = reportData.overdueBooks;
+    
+    // Update borrowing trends
+    document.getElementById('totalBorrowings').textContent = reportData.totalBorrowings;
+    document.getElementById('avgBorrowingsPerDay').textContent = 
+        Math.round(reportData.totalBorrowings / 30); // Assuming 30 days
+    
+    // Update user activity
+    document.getElementById('newUsersCount').textContent = reportData.newUsers;
+    document.getElementById('activeUsersCount').textContent = reportData.userActivity.activeUsers;
+    document.getElementById('avgBorrowTime').textContent = reportData.userActivity.avgBorrowTime;
+    
+    // Update overdue analysis
+    document.getElementById('criticalOverdue').textContent = reportData.overdueAnalysis.critical;
+    document.getElementById('warningOverdue').textContent = reportData.overdueAnalysis.warning;
+    document.getElementById('minorOverdue').textContent = reportData.overdueAnalysis.minor;
+    
+    // Update popular books
+    updatePopularBooksList();
+    
+    // Update department stats
+    updateDepartmentStats();
+    
+    // Update charts
+    updateCharts();
+}
+
+// Update popular books list
+function updatePopularBooksList() {
+    const container = document.getElementById('popularBooksList');
+    
+    if (reportData.popularBooks.length === 0) {
+        container.innerHTML = `
+            <div class="loading-placeholder">
+                <i class="fas fa-book" aria-hidden="true"></i>
+                <p>No borrowing data available</p>
+            </div>
+        `;
+        return;
+    }
+    
+    container.innerHTML = reportData.popularBooks.map((book, index) => `
+        <div class="popular-book-item">
+            <div class="book-rank">${index + 1}</div>
+            <div class="book-info">
+                <div class="book-title">${book.title}</div>
+                <div class="book-author">by ${book.author}</div>
+            </div>
+            <div class="borrow-count">
+                <i class="fas fa-book-reader"></i>
+                ${book.count}
+            </div>
+        </div>
+    `).join('');
+}
+
+// Update department stats
+function updateDepartmentStats() {
+    const container = document.getElementById('departmentStats');
+    
+    if (reportData.departmentStats.length === 0) {
+        container.innerHTML = `
+            <div class="loading-placeholder">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                <p>No department data available</p>
+            </div>
+        `;
+        return;
+    }
+    
+    const maxCount = Math.max(...reportData.departmentStats.map(d => d.count));
+    
+    container.innerHTML = reportData.departmentStats.map(dept => `
+        <div class="department-item">
+            <div>
+                <div class="department-name">${dept.name}</div>
+                <div class="department-count">${dept.count} users</div>
+            </div>
+            <div class="department-bar">
+                <div class="department-progress" style="width: ${(dept.count / maxCount) * 100}%"></div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Update charts
+function updateCharts() {
+    updateBorrowingTrendsChart();
+    updateOverdueTrendChart();
+}
+
+// Update borrowing trends chart
+function updateBorrowingTrendsChart() {
+    const ctx = document.getElementById('borrowingTrendsChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart
+    if (reportCharts.borrowingTrends) {
+        reportCharts.borrowingTrends.destroy();
+    }
+    
+    const labels = Object.keys(reportData.borrowingTrends).slice(-14); // Last 14 days
+    const data = labels.map(label => reportData.borrowingTrends[label]);
+    
+    reportCharts.borrowingTrends = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels.map(label => new Date(label).toLocaleDateString()),
+            datasets: [{
+                label: 'Daily Borrowings',
+                data: data,
+                borderColor: '#000000',
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        color: '#000000'
+                    }
+                },
+                x: {
+                    grid: {
+                        color: 'rgba(0, 0, 0, 0.1)'
+                    },
+                    ticks: {
+                        color: '#000000'
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Update overdue trend chart
+function updateOverdueTrendChart() {
+    const ctx = document.getElementById('overdueTrendChart');
+    if (!ctx) return;
+    
+    // Destroy existing chart
+    if (reportCharts.overdueTrend) {
+        reportCharts.overdueTrend.destroy();
+    }
+    
+    reportCharts.overdueTrend = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Critical', 'Warning', 'Minor'],
+            datasets: [{
+                data: [
+                    reportData.overdueAnalysis.critical,
+                    reportData.overdueAnalysis.warning,
+                    reportData.overdueAnalysis.minor
+                ],
+                backgroundColor: [
+                    '#dc2626',
+                    '#d97706',
+                    '#0891b2'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#000000',
+                        font: {
+                            size: 12
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// Get date range start
+function getDateRangeStart(days) {
+    if (days === 'all') {
+        return new Date('2020-01-01'); // Far back date
+    }
+    
+    const date = new Date();
+    date.setDate(date.getDate() - parseInt(days));
+    return date;
+}
+
+// Get member data by user ID
+function getMemberDataByUserId(userId) {
+    // This would need to be implemented based on your member data structure
+    // For now, return null
+    return null;
+}
+
+// Update reports
+function updateReports() {
+    const reportType = document.getElementById('reportType')?.value || 'overview';
+    
+    if (reportType === 'overview') {
+        document.getElementById('overviewReports').style.display = 'block';
+        document.getElementById('detailedReports').style.display = 'none';
+        loadReportData();
+    } else {
+        document.getElementById('overviewReports').style.display = 'none';
+        document.getElementById('detailedReports').style.display = 'block';
+        loadDetailedReport(reportType);
+    }
+}
+
+// Load detailed report
+function loadDetailedReport(reportType) {
+    const container = document.getElementById('detailedReportContent');
+    
+    switch (reportType) {
+        case 'borrowing':
+            container.innerHTML = generateBorrowingReport();
+            break;
+        case 'users':
+            container.innerHTML = generateUserReport();
+            break;
+        case 'inventory':
+            container.innerHTML = generateInventoryReport();
+            break;
+        default:
+            container.innerHTML = '<p>Report not available</p>';
+    }
+}
+
+// Generate borrowing report
+function generateBorrowingReport() {
+    return `
+        <div class="detailed-report">
+            <h2>Detailed Borrowing Analysis</h2>
+            <div class="report-content">
+                <p>This section would contain detailed borrowing analysis including:</p>
+                <ul>
+                    <li>Monthly borrowing patterns</li>
+                    <li>Peak borrowing times</li>
+                    <li>Return rate analysis</li>
+                    <li>Book category preferences</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+// Generate user report
+function generateUserReport() {
+    return `
+        <div class="detailed-report">
+            <h2>User Activity Report</h2>
+            <div class="report-content">
+                <p>This section would contain detailed user activity analysis including:</p>
+                <ul>
+                    <li>User engagement metrics</li>
+                    <li>Department-wise activity</li>
+                    <li>User retention rates</li>
+                    <li>Borrowing behavior patterns</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+// Generate inventory report
+function generateInventoryReport() {
+    return `
+        <div class="detailed-report">
+            <h2>Inventory Management Report</h2>
+            <div class="report-content">
+                <p>This section would contain detailed inventory analysis including:</p>
+                <ul>
+                    <li>Book condition analysis</li>
+                    <li>Maintenance requirements</li>
+                    <li>Collection growth trends</li>
+                    <li>Space utilization</li>
+                </ul>
+            </div>
+        </div>
+    `;
+}
+
+// Refresh specific report
+function refreshReport(reportType) {
+    console.log(`Refreshing ${reportType} report...`);
+    loadReportData();
+}
+
+// Export reports
+function exportReports() {
+    const reportType = document.getElementById('reportType')?.value || 'overview';
+    const dateRange = document.getElementById('reportDateRange')?.value || '30';
+    
+    // Create export options modal
+    showExportModal(reportType, dateRange);
+}
+
+// Show export modal
+function showExportModal(reportType, dateRange) {
+    // Create modal HTML
+    const modalHTML = `
+        <div id="exportModal" class="modal active">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Export Reports</h2>
+                    <button class="modal-close" onclick="closeExportModal()">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="modal-form">
+                    <div class="form-group">
+                        <label>Export Format:</label>
+                        <div class="export-options">
+                            <label class="export-option">
+                                <input type="radio" name="exportFormat" value="csv" checked>
+                                <span>CSV (Excel Compatible)</span>
+                            </label>
+                            <label class="export-option">
+                                <input type="radio" name="exportFormat" value="json">
+                                <span>JSON (Data Format)</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Report Sections:</label>
+                        <div class="export-sections">
+                            <label class="export-option">
+                                <input type="checkbox" name="exportSections" value="overview" checked>
+                                <span>Overview Statistics</span>
+                            </label>
+                            <label class="export-option">
+                                <input type="checkbox" name="exportSections" value="borrowing" checked>
+                                <span>Borrowing Trends</span>
+                            </label>
+                            <label class="export-option">
+                                <input type="checkbox" name="exportSections" value="popular" checked>
+                                <span>Popular Books</span>
+                            </label>
+                            <label class="export-option">
+                                <input type="checkbox" name="exportSections" value="users" checked>
+                                <span>User Activity</span>
+                            </label>
+                            <label class="export-option">
+                                <input type="checkbox" name="exportSections" value="overdue" checked>
+                                <span>Overdue Analysis</span>
+                            </label>
+                            <label class="export-option">
+                                <input type="checkbox" name="exportSections" value="departments" checked>
+                                <span>Department Statistics</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary" onclick="closeExportModal()">Cancel</button>
+                        <button type="button" class="btn-primary" onclick="generateExport()">Export Reports</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Add modal to page
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+// Close export modal
+function closeExportModal() {
+    const modal = document.getElementById('exportModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Generate export
+function generateExport() {
+    const format = document.querySelector('input[name="exportFormat"]:checked').value;
+    const sections = Array.from(document.querySelectorAll('input[name="exportSections"]:checked'))
+        .map(input => input.value);
+    
+    if (sections.length === 0) {
+        showMessage('Please select at least one report section to export.', 'error');
+        return;
+    }
+    
+    try {
+        const exportData = prepareExportData(sections);
+        
+        if (format === 'csv') {
+            exportToCSV(exportData, sections);
+        } else if (format === 'json') {
+            exportToJSON(exportData, sections);
+        }
+        
+        closeExportModal();
+        showMessage('Report exported successfully!', 'success');
+        
+    } catch (error) {
+        console.error('Error generating export:', error);
+        showMessage('Error generating export. Please try again.', 'error');
+    }
+}
+
+// Prepare export data
+function prepareExportData(sections) {
+    const data = {
+        exportDate: new Date().toISOString(),
+        dateRange: document.getElementById('reportDateRange')?.value || '30',
+        sections: {}
+    };
+    
+    sections.forEach(section => {
+        switch (section) {
+            case 'overview':
+                data.sections.overview = {
+                    totalBooks: reportData.totalBooks,
+                    totalUsers: reportData.totalUsers,
+                    activeBorrowings: reportData.activeBorrowings,
+                    overdueBooks: reportData.overdueBooks
+                };
+                break;
+            case 'borrowing':
+                data.sections.borrowing = {
+                    totalBorrowings: reportData.totalBorrowings,
+                    avgBorrowingsPerDay: Math.round(reportData.totalBorrowings / 30),
+                    trends: reportData.borrowingTrends
+                };
+                break;
+            case 'popular':
+                data.sections.popularBooks = reportData.popularBooks;
+                break;
+            case 'users':
+                data.sections.userActivity = {
+                    newUsers: reportData.newUsers,
+                    activeUsers: reportData.userActivity.activeUsers,
+                    avgBorrowTime: reportData.userActivity.avgBorrowTime
+                };
+                break;
+            case 'overdue':
+                data.sections.overdueAnalysis = reportData.overdueAnalysis;
+                break;
+            case 'departments':
+                data.sections.departmentStats = reportData.departmentStats;
+                break;
+        }
+    });
+    
+    return data;
+}
+
+// Export to CSV
+function exportToCSV(data, sections) {
+    let csvContent = '';
+    
+    // Add header
+    csvContent += 'ReadHub Library Management System - Report Export\n';
+    csvContent += `Generated on: ${new Date().toLocaleString()}\n`;
+    csvContent += `Date Range: Last ${data.dateRange} days\n\n`;
+    
+    sections.forEach(section => {
+        csvContent += `\n=== ${section.toUpperCase()} REPORT ===\n`;
+        
+        switch (section) {
+            case 'overview':
+                csvContent += 'Metric,Value\n';
+                csvContent += `Total Books,${data.sections.overview.totalBooks}\n`;
+                csvContent += `Total Users,${data.sections.overview.totalUsers}\n`;
+                csvContent += `Active Borrowings,${data.sections.overview.activeBorrowings}\n`;
+                csvContent += `Overdue Books,${data.sections.overview.overdueBooks}\n`;
+                break;
+                
+            case 'borrowing':
+                csvContent += 'Metric,Value\n';
+                csvContent += `Total Borrowings,${data.sections.borrowing.totalBorrowings}\n`;
+                csvContent += `Average per Day,${data.sections.borrowing.avgBorrowingsPerDay}\n`;
+                csvContent += '\nDate,Borrowings\n';
+                Object.entries(data.sections.borrowing.trends).forEach(([date, count]) => {
+                    csvContent += `${date},${count}\n`;
+                });
+                break;
+                
+            case 'popular':
+                csvContent += 'Rank,Title,Author,Borrow Count\n';
+                data.sections.popularBooks.forEach((book, index) => {
+                    csvContent += `${index + 1},"${book.title}","${book.author}",${book.count}\n`;
+                });
+                break;
+                
+            case 'users':
+                csvContent += 'Metric,Value\n';
+                csvContent += `New Users,${data.sections.userActivity.newUsers}\n`;
+                csvContent += `Active Users,${data.sections.userActivity.activeUsers}\n`;
+                csvContent += `Average Borrow Time (days),${data.sections.userActivity.avgBorrowTime}\n`;
+                break;
+                
+            case 'overdue':
+                csvContent += 'Category,Count\n';
+                csvContent += `Critical (>30 days),${data.sections.overdueAnalysis.critical}\n`;
+                csvContent += `Warning (7-30 days),${data.sections.overdueAnalysis.warning}\n`;
+                csvContent += `Minor (1-7 days),${data.sections.overdueAnalysis.minor}\n`;
+                break;
+                
+            case 'departments':
+                csvContent += 'Department,User Count\n';
+                data.sections.departmentStats.forEach(dept => {
+                    csvContent += `"${dept.name}",${dept.count}\n`;
+                });
+                break;
+        }
+    });
+    
+    // Download CSV file
+    downloadFile(csvContent, 'library-report.csv', 'text/csv');
+}
+
+// Export to JSON
+function exportToJSON(data, sections) {
+    const jsonContent = JSON.stringify(data, null, 2);
+    downloadFile(jsonContent, 'library-report.json', 'application/json');
+}
+
+// Download file
+function downloadFile(content, filename, mimeType) {
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
 }
 
 // Export functions for global access
@@ -1646,6 +2391,13 @@ window.closeFeedbackModal = closeFeedbackModal;
 window.updateFeedbackStatus = updateFeedbackStatus;
 window.deleteFeedback = deleteFeedback;
 window.handleFeedbackAction = handleFeedbackAction;
+window.initializeReports = initializeReports;
+window.updateReports = updateReports;
+window.refreshReport = refreshReport;
+window.exportReports = exportReports;
+window.showExportModal = showExportModal;
+window.closeExportModal = closeExportModal;
+window.generateExport = generateExport;
 
 // Sidebar functionality - Works for both Mobile and Desktop
 let sidebarOpen = false;
