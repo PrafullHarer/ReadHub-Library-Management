@@ -1,12 +1,5 @@
 /* Contact Page Styles - ReadHub Library Management */
 
-/* Add dotted pattern background */
-body {
-    background-image: radial-gradient(circle, rgba(0, 0, 0, 0.1) 2px, transparent 2px);
-    background-size: 20px 20px;
-    background-position: 0 0, 10px 10px;
-}
-
 /* Contact Hero Section */
 .contact-hero {
     padding: 6rem 0 4rem;
@@ -592,7 +585,7 @@ body {
 
 /* Footer Styles - Minimal Version */
 .footer {
-    background: var(--bg-tertiary);
+    background: #000000;
     border-top: 1px solid var(--border-color);
     padding: 1.5rem 0;
 }
@@ -616,15 +609,31 @@ body {
     gap: 0.25rem;
 }
 
+.footer-brand-content {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.footer-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    filter: brightness(0) invert(1); /* Makes the logo white */
+}
+
 .footer-brand .brand-text {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--text-primary);
+    color: #ffffff;
+    letter-spacing: -0.5px;
 }
 
 .brand-description {
-    color: var(--text-secondary);
+    color: #cccccc;
     font-size: 0.875rem;
+    font-weight: 500;
+    margin-left: 0.25rem;
 }
 
 .footer-links {
@@ -634,22 +643,27 @@ body {
 }
 
 .footer-links a {
-    color: var(--text-secondary);
+    color: #cccccc !important;
     text-decoration: none;
-    transition: color var(--transition-base);
+    transition: all var(--transition-base);
     font-size: 0.875rem;
     font-weight: 500;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    position: relative;
 }
 
 .footer-links a:hover {
-    color: var(--primary-color);
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
 }
 
 .footer-bottom {
-    border-top: 1px solid var(--border-color);
+    border-top: 1px solid #333333;
     padding-top: 0.75rem;
     text-align: center;
-    color: var(--text-muted);
+    color: #999999 !important;
     font-size: 0.875rem;
 }
 

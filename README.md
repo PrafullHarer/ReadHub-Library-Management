@@ -49,10 +49,11 @@ A modern, comprehensive library management system built with HTML, CSS, JavaScri
 
 ### 🎨 Modern UI/UX
 - **Responsive Design** for all devices
-- **Dark/Light Theme Support**
+- **Consistent Black Theme** with professional styling
 - **Smooth Animations** and transitions
 - **Intuitive Navigation**
 - **Accessibility Features**
+- **Consistent Footer Design** across public pages
 
 ## 🚀 Getting Started
 
@@ -261,17 +262,20 @@ FIREBASE_APP_ID=your-app-id
 - System introduction
 - Navigation to login/contact
 - Feature highlights
+- Professional footer with navigation
 
 ### 🔐 Login Page (`login.html`)
 - Secure authentication
 - Role-based redirection
 - Password recovery (if implemented)
+- Consistent footer design
 
 ### 👤 User Dashboard (`user-dashboard.html`)
 - Personal book borrowing history
 - Available books catalog
 - Profile management
 - Book search and filtering
+- Clean interface without footer for focused experience
 
 ### 🔧 Admin Dashboard (`admin-dashboard.html`)
 - **Overview Section**: Key statistics and metrics
@@ -280,12 +284,14 @@ FIREBASE_APP_ID=your-app-id
 - **User Management**: Manage students and members
 - **Reports**: Analytics and insights
 - **Feedback Management**: Handle user feedback and suggestions
+- Clean interface without footer for focused experience
 
 ### 📞 Contact Page (`contact.html`)
 - Team information
 - Contact details
 - Feedback submission form
 - Automatic feedback classification
+- Professional footer with navigation
 
 ## 🔍 Search & Filtering
 
@@ -316,10 +322,12 @@ FIREBASE_APP_ID=your-app-id
 ## 🎨 Design System
 
 ### Color Scheme
-- **Primary**: Black (#000000)
-- **Background**: White (#ffffff)
-- **Accent**: Various shades of black for different states
-- **Status Colors**: Success, Warning, Danger (all using black theme)
+- **Primary**: Black (#000000) - Professional and modern
+- **Background**: White (#ffffff) - Clean and readable
+- **Footer Background**: Black (#000000) - Consistent branding
+- **Text Colors**: White (#ffffff) and light gray (#cccccc) for footer
+- **Accent Colors**: Various shades for different states
+- **Status Colors**: Success, Warning, Danger with consistent theming
 
 ### Typography
 - **Primary Font**: System fonts for optimal performance
@@ -502,7 +510,15 @@ For support and questions:
 
 ## 🔄 Version History
 
-### v1.0.0 (Current)
+### v1.1.0 (Current)
+- Updated copyright year to 2025
+- Consistent footer design across all public pages
+- Removed footer from dashboard pages for cleaner interface
+- Standardized color scheme with black theme
+- Enhanced UI/UX consistency
+- Improved responsive design
+
+### v1.0.0
 - Initial release
 - Complete library management system
 - Firebase integration
@@ -521,6 +537,10 @@ For support and questions:
 - [ ] Multi-language support
 - [ ] API development
 - [ ] Integration with external library systems
+- [ ] Dark mode toggle
+- [ ] Advanced user preferences
+- [ ] Bulk operations for admin
+- [ ] Export functionality for reports
 
 ---
 
