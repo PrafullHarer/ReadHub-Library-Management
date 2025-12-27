@@ -387,142 +387,73 @@ body {
 .dashboard-container {
     display: flex;
     min-height: 100vh;
-    padding-top: 0;
-    margin-left: 260px;
+    padding-top: 60px;
+    margin-left: 0;
+    /* Remove margin as sidebar is now an overlay */
+    transition: margin-left var(--transition-base);
 }
 
-/* Enhanced Sidebar - Dark Theme */
+/* Enhanced Sidebar - Universal Drawer Style */
 .sidebar {
-    width: 260px;
+    width: 280px;
     background: var(--sidebar-bg);
     border-right: none;
     padding: 1.5rem 0;
     position: fixed;
-    top: 0;
+    top: 60px;
+    /* Below header */
     left: 0;
-    height: 100vh;
+    height: calc(100vh - 60px);
     overflow-y: auto;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-    transition: all var(--transition-base);
+    transition: transform var(--transition-base);
     z-index: 90;
     display: flex;
     flex-direction: column;
+    transform: translateX(-100%);
+    /* Hidden by default on ALL screens */
 }
 
-/* Desktop Sidebar - Always visible, static position */
+/* Toggle State - Visible */
+.sidebar.mobile-visible {
+    transform: translateX(0);
+}
+
+/* Desktop Styles - Override only necessary items, keep drawer behavior */
 @media (min-width: 1024px) {
+
+    /* Header remains visible on desktop */
+    .mobile-header {
+        display: flex;
+        z-index: 101;
+        /* Ensure header stays above sidebar if needed, or sidebar below it */
+    }
+
+    .mobile-header .mobile-title {
+        display: block;
+    }
+
+    /* Sidebar adjustments for desktop if any, but main behavior is now universal */
     .sidebar {
-        width: 260px;
-        padding: 1.5rem 0;
-        transform: translateX(0) !important;
-        position: fixed;
+        width: 300px;
+        /* Slightly wider on large screens if desired */
     }
 
     .sidebar-header {
-        padding: 0 1.25rem 1.5rem;
-    }
-
-    .sidebar-header h2 {
-        font-size: 1.25rem;
-    }
-
-    .nav-item {
-        margin: 0;
-        padding: 0.875rem 1rem;
-        font-size: 0.9rem;
-    }
-
-    .nav-item i {
-        font-size: 1rem;
-    }
-
-    .main-content {
-        margin-left: 260px;
-        width: calc(100% - 260px);
+        display: none;
+        /* Hide sidebar internal header */
     }
 }
 
-/* Mobile/Tablet - Sidebar hidden by default, shown with hamburger */
-@media (max-width: 1023px) {
-    .dashboard-container {
-        margin-left: 0;
-        padding-top: 60px;
-    }
-
-    .sidebar {
-        transform: translateX(-100%);
-        width: 260px;
-        top: 0;
-    }
-
-    .sidebar.mobile-visible {
-        transform: translateX(0);
-    }
-
-    .main-content {
-        margin-left: 0;
-        width: 100%;
-    }
+/* Main Content - No margin offset needed by default */
+.main-content {
+    flex: 1;
+    margin-left: 0;
+    padding: 2rem;
+    width: 100%;
 }
 
-.sidebar.collapsed .sidebar-header {
-    padding: 0 1rem 2rem;
-    text-align: center;
-}
-
-.sidebar.collapsed .sidebar-header h2 {
-    font-size: 1.5rem;
-    justify-content: center;
-}
-
-.sidebar.collapsed .nav-item {
-    margin: 0 0.5rem;
-    width: calc(100% - 1rem);
-    padding: 1rem 0.75rem;
-    justify-content: center;
-}
-
-.sidebar.collapsed .nav-item span {
-    display: none;
-}
-
-.sidebar.collapsed .nav-item i {
-    display: none;
-    /* Hide icons when collapsed */
-}
-
-.sidebar.collapsed .nav-item::before {
-    display: none;
-}
-
-.sidebar.collapsed .nav-item:hover {
-    transform: none;
-}
-
-.sidebar.collapsed .nav-item.active {
-    transform: none;
-}
-
-/* Show only a minimal indicator when collapsed */
-.sidebar.collapsed .nav-item {
-    background: transparent;
-    border: 1px solid transparent;
-    position: relative;
-}
-
-.sidebar.collapsed .nav-item.active {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-.sidebar.collapsed .nav-item:hover {
-    background: rgba(255, 255, 255, 0.05);
-    border-color: var(--accent-color);
-}
-
-/* Sidebar Toggle styles moved to sidebar-button.css */
-
-/* Sidebar Overlay for Mobile */
+/* Ensure overlay works on desktop too if we want backend dimming */
 .sidebar-overlay {
     display: none;
     position: fixed;
@@ -537,6 +468,7 @@ body {
 }
 
 .sidebar-overlay.active {
+    display: block;
     opacity: 1;
 }
 

@@ -2400,9 +2400,8 @@ window.showExportModal = showExportModal;
 window.closeExportModal = closeExportModal;
 window.generateExport = generateExport;
 
-// Sidebar functionality - Works for both Mobile and Desktop
+// Sidebar functionality - Universal Drawer
 let sidebarOpen = false;
-let sidebarCollapsed = false;
 
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
@@ -2418,176 +2417,86 @@ function toggleSidebar() {
         toggle.classList.remove('clicked');
     }, 800);
 
-    if (window.innerWidth <= 1023) {
-        // Mobile behavior - slide in/out
-        sidebarOpen = !sidebarOpen;
+    // Universal behavior - slide in/out
+    sidebarOpen = !sidebarOpen;
 
-        if (sidebarOpen) {
-            sidebar.classList.add('mobile-visible');
-            sidebar.classList.remove('mobile-hidden');
-            overlay.classList.add('active');
-            mainContent.classList.add('mobile-full-width');
-            document.body.style.overflow = 'hidden';
-        } else {
-            closeSidebar();
-        }
+    if (sidebarOpen) {
+        sidebar.classList.add('mobile-visible');
+        sidebar.classList.remove('mobile-hidden');
+        overlay.classList.add('active');
+        // Prevent body scroll when sidebar is open
+        document.body.style.overflow = 'hidden';
     } else {
-        // Desktop behavior - collapse/expand
-        sidebarCollapsed = !sidebarCollapsed;
-
-        if (sidebarCollapsed) {
-            sidebar.classList.add('collapsed');
-            // Update toggle button icon
-            const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-bars';
-            // Store state in localStorage
-            localStorage.setItem('sidebarCollapsed', 'true');
-        } else {
-            sidebar.classList.remove('collapsed');
-            // Update toggle button icon
-            const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-times';
-            // Store state in localStorage
-            localStorage.setItem('sidebarCollapsed', 'false');
-        }
+        closeSidebar();
     }
 }
 
 function closeSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
-    const mainContent = document.querySelector('.main-content');
 
-    if (window.innerWidth <= 1023) {
-        sidebarOpen = false;
-        sidebar.classList.remove('mobile-visible');
-        sidebar.classList.add('mobile-hidden');
-        overlay.classList.remove('active');
-        mainContent.classList.remove('mobile-full-width');
-        document.body.style.overflow = 'auto';
-    }
+    sidebarOpen = false;
+    sidebar.classList.remove('mobile-visible');
+    sidebar.classList.add('mobile-hidden');
+    overlay.classList.remove('active');
+    document.body.style.overflow = 'auto';
 }
 
 // Handle window resize
 function handleResize() {
+    // Optional: Auto-close on resize if desirable, or just keep state.
+    // Ideally, responsive layout handled by CSS. 
+    // Just ensure overlay matches state.
     const sidebar = document.querySelector('.sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    const mainContent = document.querySelector('.main-content');
-    const toggle = document.querySelector('.sidebar-toggle');
 
-    if (window.innerWidth > 1023) {
-        // Desktop view - reset mobile states and apply desktop behavior
-        sidebar.classList.remove('mobile-visible', 'mobile-hidden');
-        overlay.classList.remove('active');
-        mainContent.classList.remove('mobile-full-width');
-        document.body.style.overflow = 'auto';
-        sidebarOpen = false;
-
-        // Restore desktop sidebar state from localStorage
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
-            sidebar.classList.add('collapsed');
-            sidebarCollapsed = true;
-            const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-bars';
-        } else {
-            sidebar.classList.remove('collapsed');
-            sidebarCollapsed = false;
-            const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-times';
-        }
-    } else {
-        // Mobile view - reset desktop states and apply mobile behavior
-        sidebar.classList.remove('collapsed');
-        sidebarCollapsed = false;
-
-        if (!sidebarOpen) {
-            sidebar.classList.add('mobile-hidden');
-            sidebar.classList.remove('mobile-visible');
-        }
-
-        // Reset toggle icon for mobile
-        const toggleIcon = toggle.querySelector('i');
-        toggleIcon.className = 'fas fa-bars';
-    }
+    // If we want to reset on major breakpoint changes we could, 
+    // but for universal drawer, state persistence is simple.
+    // Ensuring classes are correct if CSS media queries interfered?
+    // With universal logic, we mostly trust current state.
 }
 
 // Initialize sidebar on page load
 function initializeSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
-    const toggle = document.querySelector('.sidebar-toggle');
 
-    if (window.innerWidth <= 1023) {
-        // Mobile initialization
-        sidebar.classList.add('mobile-hidden');
-        overlay.style.display = 'block';
-        sidebarOpen = false;
-        sidebarCollapsed = false;
-        const toggleIcon = toggle.querySelector('i');
-        toggleIcon.className = 'fas fa-bars';
-    } else {
-        // Desktop initialization
-        overlay.style.display = 'none';
-        sidebarOpen = false;
-
-        // Restore desktop sidebar state from localStorage
-        const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-        if (isCollapsed) {
-            sidebar.classList.add('collapsed');
-            sidebarCollapsed = true;
-            const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-bars';
-        } else {
-            sidebar.classList.remove('collapsed');
-            sidebarCollapsed = false;
-            const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-times';
-        }
-    }
+    // Default state: Hidden
+    sidebar.classList.add('mobile-hidden');
+    sidebar.classList.remove('mobile-visible');
+    overlay.classList.remove('active');
+    sidebarOpen = false;
 
     // Add event listeners
     window.addEventListener('resize', handleResize);
 
-    // Close sidebar when clicking on nav items on mobile
+    // Close sidebar when clicking overlay
+    overlay.addEventListener('click', closeSidebar);
+
+    // Close sidebar when clicking on nav items (optional, good for mobile feel)
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', () => {
-            if (window.innerWidth <= 1023) {
-                setTimeout(closeSidebar, 150); // Small delay for smooth transition
-            }
+            // Close on selection to show content
+            setTimeout(closeSidebar, 150);
         });
     });
 
     // Add keyboard navigation support
     document.addEventListener('keydown', (event) => {
         // Escape key closes sidebar
-        if (event.key === 'Escape' && (sidebarOpen || sidebarCollapsed)) {
-            if (window.innerWidth <= 1023) {
-                closeSidebar();
-            } else {
-                // On desktop, escape key expands collapsed sidebar
-                if (sidebarCollapsed) {
-                    toggleSidebar();
-                }
-            }
+        if (event.key === 'Escape' && sidebarOpen) {
+            closeSidebar();
         }
 
-        // Alt + S toggles sidebar on desktop
-        if (event.altKey && event.key === 's' && window.innerWidth > 1023) {
-            event.preventDefault();
-            toggleSidebar();
-        }
-
-        // Ctrl + Shift + S toggles sidebar on mobile
-        if (event.ctrlKey && event.shiftKey && event.key === 'S' && window.innerWidth <= 1023) {
+        // Ctrl + Shift + S toggles sidebar (Universal shortcut)
+        if (event.ctrlKey && event.shiftKey && event.key === 'S') {
             event.preventDefault();
             toggleSidebar();
         }
     });
 
     // Make nav items focusable for keyboard navigation
-    navItems.forEach((item, index) => {
+    navItems.forEach((item) => {
         item.setAttribute('tabindex', '0');
         item.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' || event.key === ' ') {
