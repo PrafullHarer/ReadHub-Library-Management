@@ -196,10 +196,9 @@
     outline-offset: 2px;
 }
 
-/* Mobile Responsive Design - Show hamburger on mobile */
+/* Mobile Responsive Design */
 @media (max-width: 768px) {
     .sidebar-toggle {
-        display: flex;
         width: 44px;
         height: 44px;
         font-size: 1rem;
@@ -220,10 +219,9 @@
     }
 }
 
-/* Tablet Responsive Design - Show hamburger on tablet */
+/* Tablet Responsive Design */
 @media (min-width: 769px) and (max-width: 1023px) {
     .sidebar-toggle {
-        display: flex;
         width: 46px;
         height: 46px;
         font-size: 1.0625rem;
@@ -235,11 +233,17 @@
     }
 }
 
-/* Desktop - Ensure hamburger toggle is visible */
+/* Desktop Responsive Design */
 @media (min-width: 1024px) {
     .sidebar-toggle {
-        display: flex !important;
-        /* Force display */
+        width: 48px;
+        height: 48px;
+        font-size: 1.125rem;
+    }
+
+    .sidebar-toggle.clicked::after {
+        width: 120px;
+        height: 120px;
     }
 }
 

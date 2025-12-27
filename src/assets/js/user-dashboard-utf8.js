@@ -1,4 +1,4 @@
-﻿// User Dashboard JavaScript
+// User Dashboard JavaScript
 
 // Global variables
 let currentUser = null;
