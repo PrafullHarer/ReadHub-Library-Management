@@ -371,7 +371,8 @@ body {
 .dashboard-container {
     display: flex;
     min-height: 100vh;
-    padding-top: 80px;
+    padding-top: 0;
+    margin-left: 260px;
 }
 
 /* Enhanced Sidebar - Dark Theme */
@@ -427,9 +428,15 @@ body {
 
 /* Mobile/Tablet - Sidebar hidden by default, shown with hamburger */
 @media (max-width: 1023px) {
+    .dashboard-container {
+        margin-left: 0;
+        padding-top: 60px;
+    }
+
     .sidebar {
         transform: translateX(-100%);
         width: 260px;
+        top: 0;
     }
 
     .sidebar.mobile-visible {
