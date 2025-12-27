@@ -182,9 +182,9 @@ body {
     background: transparent;
 }
 
-/* Mobile Header - Only visible on mobile/tablet */
+/* Dashboard Header - Visible on all screens */
 .mobile-header {
-    display: none;
+    display: flex;
     position: fixed;
     top: 0;
     left: 0;
@@ -194,6 +194,7 @@ body {
     padding: 0.75rem 1rem;
     align-items: center;
     gap: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .mobile-header .mobile-title {
@@ -202,41 +203,56 @@ body {
     font-weight: 700;
 }
 
-@media (max-width: 1023px) {
+/* Adjust Dashboard Container to account for header */
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+    padding-top: 60px;
+    /* Space for fixed header */
+    margin-left: 260px;
+    transition: margin-left var(--transition-base);
+}
+
+/* Desktop Styles */
+@media (min-width: 1024px) {
+
+    /* Header remains visible on desktop */
     .mobile-header {
         display: flex;
+        /* Ensure it matches sidebar width for the logo part if desired, 
+           but here we want it full width or offset? 
+           Let's keep it full width z-index 100. */
     }
 
-    .dashboard-container {
-        padding-top: 60px;
-    }
-}
-
-/* Desktop - No mobile header, no top padding */
-@media (min-width: 1024px) {
-    .mobile-header {
-        display: none !important;
+    .mobile-header .mobile-title {
+        display: block;
+        /* Or hide if redundant with sidebar brand */
     }
 
-    .dashboard-container {
-        padding-top: 0;
+    /* Adjust sidebar to sit below header */
+    .sidebar {
+        top: 60px;
+        /* Below header */
+        height: calc(100vh - 60px);
+        box-shadow: none;
+        /* Header creates the separation */
+        border-right: 1px solid rgba(255, 255, 255, 0.1);
     }
-}
 
-/* Sidebar Footer */
-.sidebar-footer {
-    margin-top: auto;
-    padding: 1rem 0.75rem;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-}
+    /* When sidebar is collapsed */
+    .sidebar.collapsed {
+        width: 80px;
+    }
 
-.sidebar-footer .logout-btn {
-    color: var(--sidebar-text-muted);
-}
+    .sidebar.collapsed~.main-content {
+        margin-left: 80px;
+        width: calc(100% - 80px);
+    }
 
-.sidebar-footer .logout-btn:hover {
-    background: rgba(239, 68, 68, 0.2);
-    color: #ef4444;
+    .sidebar-header {
+        display: none;
+        /* Hide sidebar internal header since we have top bar */
+    }
 }
 
 /* Hide old navbar */

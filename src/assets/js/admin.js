@@ -2418,7 +2418,7 @@ function toggleSidebar() {
         toggle.classList.remove('clicked');
     }, 800);
 
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1023) {
         // Mobile behavior - slide in/out
         sidebarOpen = !sidebarOpen;
 
@@ -2458,7 +2458,7 @@ function closeSidebar() {
     const overlay = document.querySelector('.sidebar-overlay');
     const mainContent = document.querySelector('.main-content');
 
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1023) {
         sidebarOpen = false;
         sidebar.classList.remove('mobile-visible');
         sidebar.classList.add('mobile-hidden');
@@ -2475,7 +2475,7 @@ function handleResize() {
     const mainContent = document.querySelector('.main-content');
     const toggle = document.querySelector('.sidebar-toggle');
 
-    if (window.innerWidth > 768) {
+    if (window.innerWidth > 1023) {
         // Desktop view - reset mobile states and apply desktop behavior
         sidebar.classList.remove('mobile-visible', 'mobile-hidden');
         overlay.classList.remove('active');
@@ -2518,7 +2518,7 @@ function initializeSidebar() {
     const overlay = document.querySelector('.sidebar-overlay');
     const toggle = document.querySelector('.sidebar-toggle');
 
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1023) {
         // Mobile initialization
         sidebar.classList.add('mobile-hidden');
         overlay.style.display = 'block';
@@ -2553,7 +2553,7 @@ function initializeSidebar() {
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
         item.addEventListener('click', () => {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1023) {
                 setTimeout(closeSidebar, 150); // Small delay for smooth transition
             }
         });
@@ -2563,7 +2563,7 @@ function initializeSidebar() {
     document.addEventListener('keydown', (event) => {
         // Escape key closes sidebar
         if (event.key === 'Escape' && (sidebarOpen || sidebarCollapsed)) {
-            if (window.innerWidth <= 768) {
+            if (window.innerWidth <= 1023) {
                 closeSidebar();
             } else {
                 // On desktop, escape key expands collapsed sidebar
@@ -2574,13 +2574,13 @@ function initializeSidebar() {
         }
 
         // Alt + S toggles sidebar on desktop
-        if (event.altKey && event.key === 's' && window.innerWidth > 768) {
+        if (event.altKey && event.key === 's' && window.innerWidth > 1023) {
             event.preventDefault();
             toggleSidebar();
         }
 
         // Ctrl + Shift + S toggles sidebar on mobile
-        if (event.ctrlKey && event.shiftKey && event.key === 'S' && window.innerWidth <= 768) {
+        if (event.ctrlKey && event.shiftKey && event.key === 'S' && window.innerWidth <= 1023) {
             event.preventDefault();
             toggleSidebar();
         }
