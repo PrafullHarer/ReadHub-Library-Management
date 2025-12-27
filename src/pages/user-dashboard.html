@@ -50,65 +50,52 @@
         <div class="gradient-overlay"></div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="navbar" role="navigation" aria-label="Student navigation">
-        <div class="nav-container">
-            <!-- Sidebar Toggle - Fixed in Header -->
-            <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
-                <i class="fas fa-times"></i>
-            </button>
-
-            <a href="welcome.html" class="nav-brand">
-                <div class="brand-icon">
-                    <img src="../assets/library.png" alt="ReadHub Logo" class="brand-logo">
-                </div>
-                <span class="brand-text">ReadHub Student</span>
-            </a>
-            <div class="nav-actions">
-                <div class="user-info">
-                    <i class="fas fa-user-graduate" aria-hidden="true"></i>
-                    <span id="studentName">Student User</span>
-                </div>
-                <button class="btn-logout" onclick="handleLogout()" aria-label="Logout">
-                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
-                    <span>Logout</span>
-                </button>
-            </div>
-        </div>
-    </nav>
+    <!-- Mobile Header with Hamburger -->
+    <header class="mobile-header">
+        <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        <span class="mobile-title">ReadHub</span>
+    </header>
 
     <!-- Sidebar Overlay -->
     <div class="sidebar-overlay" onclick="closeSidebar()"></div>
 
     <!-- Main Dashboard Container -->
     <div class="dashboard-container">
-        <!-- Sidebar -->
         <aside class="sidebar" role="complementary" aria-label="Student navigation">
             <div class="sidebar-header">
-                <h2>Student</h2>
+                <h2>ReadHub</h2>
             </div>
             <nav class="sidebar-nav">
                 <button class="nav-item active" data-section="overview" onclick="showSection('overview')">
-                    <i class="fas fa-chart-pie" aria-hidden="true"></i>
-                    <span>Overview</span>
+                    <i class="fas fa-home" aria-hidden="true"></i>
+                    <span>Dashboard</span>
                 </button>
                 <button class="nav-item" data-section="browse" onclick="showSection('browse')">
                     <i class="fas fa-search" aria-hidden="true"></i>
-                    <span>Browse Books</span>
+                    <span>Browse</span>
                 </button>
                 <button class="nav-item" data-section="borrowed" onclick="showSection('borrowed')">
                     <i class="fas fa-book-reader" aria-hidden="true"></i>
-                    <span>My Borrowed Books</span>
+                    <span>Borrowed</span>
                 </button>
                 <button class="nav-item" data-section="history" onclick="showSection('history')">
                     <i class="fas fa-history" aria-hidden="true"></i>
-                    <span>Borrowing History</span>
+                    <span>History</span>
                 </button>
                 <button class="nav-item" data-section="profile" onclick="showSection('profile')">
                     <i class="fas fa-user" aria-hidden="true"></i>
-                    <span>My Profile</span>
+                    <span>Profile</span>
                 </button>
             </nav>
+            <!-- Sidebar Footer with Logout -->
+            <div class="sidebar-footer">
+                <button class="nav-item logout-btn" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt" aria-hidden="true"></i>
+                    <span>Sign Out</span>
+                </button>
+            </div>
         </aside>
 
         <!-- Main Content -->
