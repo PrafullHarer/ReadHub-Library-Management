@@ -360,76 +360,74 @@ body {
     transform: translateY(0);
 }
 
-/* Dashboard Container */
+/* ========================================
+   LAYOUT SYSTEM - Sidebar + Main Content
+   Desktop: Fixed sidebar, content offset
+   Mobile: Hidden sidebar, hamburger toggle
+   ======================================== */
+
+/* Dashboard Container - Simple flex wrapper */
 .dashboard-container {
     display: flex;
     min-height: 100vh;
-    padding-top: 0;
-    margin-left: 260px;
 }
 
-/* Enhanced Sidebar - Dark Theme */
+/* Fixed Sidebar - Left side */
 .sidebar {
     width: 260px;
     background: var(--sidebar-bg);
-    border-right: none;
-    padding: 1.5rem 0;
     position: fixed;
     top: 0;
     left: 0;
     height: 100vh;
     overflow-y: auto;
     box-shadow: 4px 0 20px rgba(0, 0, 0, 0.3);
-    transition: all var(--transition-base);
-    z-index: 90;
+    z-index: 100;
     display: flex;
     flex-direction: column;
+    padding: 1.5rem 0;
+    transition: transform 0.3s ease;
 }
 
-/* Desktop Sidebar - Always visible, static position */
+/* Main Content - Right side with offset */
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    margin-left: 260px;
+    width: calc(100% - 260px);
+    min-height: 100vh;
+    background: var(--bg-primary);
+}
+
+/* ========================================
+   DESKTOP STYLES (≥1024px)
+   ======================================== */
 @media (min-width: 1024px) {
     .sidebar {
-        width: 260px;
-        padding: 1.5rem 0;
         transform: translateX(0) !important;
-        position: fixed;
-    }
-
-    .sidebar-header {
-        padding: 0 1.25rem 1.5rem;
-    }
-
-    .sidebar-header h2 {
-        font-size: 1.25rem;
-    }
-
-    .nav-item {
-        margin: 0;
-        padding: 0.875rem 1rem;
-        font-size: 0.9rem;
-    }
-
-    .nav-item i {
-        font-size: 1rem;
     }
 
     .main-content {
         margin-left: 260px;
         width: calc(100% - 260px);
     }
-}
 
-/* Mobile/Tablet - Sidebar hidden by default, shown with hamburger */
-@media (max-width: 1023px) {
-    .dashboard-container {
-        margin-left: 0;
-        padding-top: 60px;
+    .mobile-header {
+        display: none !important;
     }
 
+    .sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* ========================================
+   MOBILE/TABLET STYLES (<1024px)
+   ======================================== */
+@media (max-width: 1023px) {
     .sidebar {
         transform: translateX(-100%);
-        width: 260px;
-        top: 0;
+        z-index: 200;
     }
 
     .sidebar.mobile-visible {
@@ -439,6 +437,11 @@ body {
     .main-content {
         margin-left: 0;
         width: 100%;
+        padding-top: 80px;
+    }
+
+    .mobile-header {
+        display: flex;
     }
 }
 
