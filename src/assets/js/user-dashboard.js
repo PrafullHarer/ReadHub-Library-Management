@@ -1151,30 +1151,24 @@ let sidebarCollapsed = false;
 function toggleSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
-    const mainContent = document.querySelector('.main-content');
     const toggle = document.querySelector('.sidebar-toggle');
 
     // Add click effect
-    toggle.classList.add('clicked');
+    if (toggle) {
+        toggle.classList.add('clicked');
+        setTimeout(() => {
+            toggle.classList.remove('clicked');
+        }, 800);
+    }
 
-    // Remove click effect after animation
-    setTimeout(() => {
-        toggle.classList.remove('clicked');
-    }, 800);
-
-    if (window.innerWidth <= 768) {
+    if (window.innerWidth <= 1024) { // Updated to cover tablets as mobile
         // Mobile behavior - slide in/out
-        sidebarOpen = !sidebarOpen;
+        sidebar.classList.toggle('active');
+        if (overlay) overlay.classList.toggle('active');
 
-        if (sidebarOpen) {
-            sidebar.classList.add('mobile-visible');
-            sidebar.classList.remove('mobile-hidden');
-            overlay.classList.add('active');
-            mainContent.classList.add('mobile-full-width');
-            document.body.style.overflow = 'hidden';
-        } else {
-            closeSidebar();
-        }
+        // Update state variable
+        sidebarOpen = sidebar.classList.contains('active');
+
     } else {
         // Desktop behavior - collapse/expand
         sidebarCollapsed = !sidebarCollapsed;
@@ -1183,14 +1177,14 @@ function toggleSidebar() {
             sidebar.classList.add('collapsed');
             // Update toggle button icon
             const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-bars';
+            if (toggleIcon) toggleIcon.className = 'fas fa-bars';
             // Store state in localStorage
             localStorage.setItem('sidebarCollapsed', 'true');
         } else {
             sidebar.classList.remove('collapsed');
             // Update toggle button icon
             const toggleIcon = toggle.querySelector('i');
-            toggleIcon.className = 'fas fa-times';
+            if (toggleIcon) toggleIcon.className = 'fas fa-times';
             // Store state in localStorage
             localStorage.setItem('sidebarCollapsed', 'false');
         }

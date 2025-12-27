@@ -1,0 +1,100 @@
+/* Mobile Optimizations for Admin Dashboard */
+
+/* Sidebar Mobile Styles */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 1rem;
+    }
+
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 1rem;
+    }
+
+    .nav-links {
+        display: none;
+        /* Hide nav links by default on mobile */
+        margin-top: 1rem;
+    }
+
+    /* Add a class using JS to toggle this */
+    .sidebar.active .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .nav-item {
+        width: 100%;
+        justify-content: flex-start;
+        padding: 1rem;
+    }
+}
+
+/* Stats Grid Mobile optimization */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        /* Stack cards vertically */
+        gap: 1rem;
+    }
+
+    .stats-row {
+        grid-template-columns: 1fr;
+    }
+
+    .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .header-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .header-actions button {
+        width: 100%;
+    }
+}
+
+/* Responsiveness for Tables */
+@media (max-width: 768px) {
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-radius: var(--radius-md);
+        box-shadow: var(--shadow-sm);
+    }
+
+    table {
+        min-width: 600px;
+        /* Ensure table doesn't squish too much */
+    }
+}
+
+/* Modal Mobile Optimization */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        margin: 1rem auto;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 1.5rem;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+}
