@@ -1,32 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Admin Dashboard - ReadHub</title>
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="ReadHub Admin Dashboard - Manage books, users, and library operations with comprehensive administrative tools.">
-    <meta name="keywords" content="admin dashboard, library management, book management, user management, ReadHub admin">
+    <meta name="description"
+        content="ReadHub Admin Dashboard - Manage books, users, and library operations with comprehensive administrative tools.">
+    <meta name="keywords"
+        content="admin dashboard, library management, book management, user management, ReadHub admin">
     <meta name="robots" content="noindex, nofollow">
-    
+
     <!-- Preload Critical Resources -->
     <link rel="preload" href="../assets/css/admin-styles.css" as="style">
     <link rel="preload" href="../assets/css/sidebar-button.css" as="style">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" crossorigin="anonymous">
-    
+    <link rel="preload" href="../assets/css/responsive-utilities.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style"
+        crossorigin="anonymous">
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="../assets/css/admin-styles.css">
     <link rel="stylesheet" href="../assets/css/sidebar-button.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css" crossorigin="anonymous">
-    
+    <link rel="stylesheet" href="../assets/css/responsive-utilities.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css"
+        crossorigin="anonymous">
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="../assets/library.png">
-    
+
     <!-- Chart.js for Reports -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.min.js"></script>
 </head>
+
 <body>
     <!-- Background Effects -->
     <div class="background-effects">
@@ -48,7 +61,7 @@
             <button class="sidebar-toggle" onclick="toggleSidebar()" aria-label="Toggle sidebar">
                 <i class="fas fa-times"></i>
             </button>
-            
+
             <a href="welcome.html" class="nav-brand">
                 <div class="brand-icon">
                     <img src="../assets/library.png" alt="ReadHub Logo" class="brand-logo">
@@ -114,7 +127,7 @@
                     <h1>Dashboard Overview</h1>
                     <p>Welcome to ReadHub Admin Dashboard</p>
                 </div>
-                
+
                 <!-- Stats Cards -->
                 <div class="stats-grid">
                     <!-- Primary Stats Row -->
@@ -146,7 +159,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <!-- Secondary Stats Row -->
                     <div class="stats-row secondary-stats">
                         <div class="stat-card">
@@ -236,11 +249,13 @@
                 <div class="filters-bar">
                     <div class="search-box">
                         <i class="fas fa-search" aria-hidden="true"></i>
-                        <input type="text" id="borrowedSearch" placeholder="Search borrowed books..." onkeyup="filterBorrowedBooks()">
+                        <input type="text" id="borrowedSearch" placeholder="Search borrowed books..."
+                            onkeyup="filterBorrowedBooks()">
                     </div>
                     <div class="search-box">
                         <i class="fas fa-id-card" aria-hidden="true"></i>
-                        <input type="text" id="studentIdSearch" placeholder="Search by Student ID..." onkeyup="filterBorrowedBooks()">
+                        <input type="text" id="studentIdSearch" placeholder="Search by Student ID..."
+                            onkeyup="filterBorrowedBooks()">
                     </div>
                     <select id="borrowedStatusFilter" onchange="filterBorrowedBooks()">
                         <option value="">All Borrowed Books</option>
@@ -346,7 +361,8 @@
                             <div class="report-header">
                                 <h3><i class="fas fa-chart-pie" aria-hidden="true"></i> Library Statistics</h3>
                                 <div class="report-actions">
-                                    <button class="btn-action btn-info" onclick="refreshReport('stats')" title="Refresh">
+                                    <button class="btn-action btn-info" onclick="refreshReport('stats')"
+                                        title="Refresh">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -376,7 +392,8 @@
                             <div class="report-header">
                                 <h3><i class="fas fa-chart-line" aria-hidden="true"></i> Borrowing Trends</h3>
                                 <div class="report-actions">
-                                    <button class="btn-action btn-info" onclick="refreshReport('trends')" title="Refresh">
+                                    <button class="btn-action btn-info" onclick="refreshReport('trends')"
+                                        title="Refresh">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -401,7 +418,8 @@
                             <div class="report-header">
                                 <h3><i class="fas fa-chart-bar" aria-hidden="true"></i> Most Popular Books</h3>
                                 <div class="report-actions">
-                                    <button class="btn-action btn-info" onclick="refreshReport('popular')" title="Refresh">
+                                    <button class="btn-action btn-info" onclick="refreshReport('popular')"
+                                        title="Refresh">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -419,7 +437,8 @@
                             <div class="report-header">
                                 <h3><i class="fas fa-users" aria-hidden="true"></i> User Activity</h3>
                                 <div class="report-actions">
-                                    <button class="btn-action btn-info" onclick="refreshReport('users')" title="Refresh">
+                                    <button class="btn-action btn-info" onclick="refreshReport('users')"
+                                        title="Refresh">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -460,7 +479,8 @@
                             <div class="report-header">
                                 <h3><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Overdue Analysis</h3>
                                 <div class="report-actions">
-                                    <button class="btn-action btn-info" onclick="refreshReport('overdue')" title="Refresh">
+                                    <button class="btn-action btn-info" onclick="refreshReport('overdue')"
+                                        title="Refresh">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -491,7 +511,8 @@
                             <div class="report-header">
                                 <h3><i class="fas fa-graduation-cap" aria-hidden="true"></i> Department Analysis</h3>
                                 <div class="report-actions">
-                                    <button class="btn-action btn-info" onclick="refreshReport('departments')" title="Refresh">
+                                    <button class="btn-action btn-info" onclick="refreshReport('departments')"
+                                        title="Refresh">
                                         <i class="fas fa-sync-alt"></i>
                                     </button>
                                 </div>
@@ -525,7 +546,8 @@
                 <div class="filters-bar">
                     <div class="search-box">
                         <i class="fas fa-search" aria-hidden="true"></i>
-                        <input type="text" id="feedbackSearch" placeholder="Search feedback..." onkeyup="filterFeedback()">
+                        <input type="text" id="feedbackSearch" placeholder="Search feedback..."
+                            onkeyup="filterFeedback()">
                     </div>
                     <select id="feedbackStatusFilter" onchange="filterFeedback()">
                         <option value="">All Feedback</option>
@@ -761,7 +783,8 @@
                 </div>
                 <div class="form-group">
                     <label for="userPassword">Temporary Password *</label>
-                    <input type="password" id="userPassword" name="password" required placeholder="User will be asked to change on first login">
+                    <input type="password" id="userPassword" name="password" required
+                        placeholder="User will be asked to change on first login">
                 </div>
                 <div class="form-group">
                     <label for="userStatus">Account Status</label>
@@ -773,7 +796,8 @@
                 </div>
                 <div class="form-group">
                     <label for="userNotes">Notes</label>
-                    <textarea id="userNotes" name="notes" rows="3" placeholder="Additional notes about the user..."></textarea>
+                    <textarea id="userNotes" name="notes" rows="3"
+                        placeholder="Additional notes about the user..."></textarea>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeAddUserModal()">Cancel</button>
@@ -859,7 +883,8 @@
                 </div>
                 <div class="form-group">
                     <label for="editUserNotes">Notes</label>
-                    <textarea id="editUserNotes" name="notes" rows="3" placeholder="Additional notes about the user..."></textarea>
+                    <textarea id="editUserNotes" name="notes" rows="3"
+                        placeholder="Additional notes about the user..."></textarea>
                 </div>
                 <div class="modal-actions">
                     <button type="button" class="btn-secondary" onclick="closeEditUserModal()">Cancel</button>
@@ -924,7 +949,8 @@
                         </div>
                         <div class="form-group">
                             <label for="adminResponse">Admin Response</label>
-                            <textarea id="adminResponse" name="adminResponse" rows="4" placeholder="Add your response or notes about this feedback..."></textarea>
+                            <textarea id="adminResponse" name="adminResponse" rows="4"
+                                placeholder="Add your response or notes about this feedback..."></textarea>
                         </div>
                         <div class="modal-actions">
                             <button type="button" class="btn-secondary" onclick="closeFeedbackModal()">Close</button>
@@ -957,6 +983,10 @@
         </button>
     </div>
 
+    <!-- Environment Configuration -->
+    <script src="../config/env-config.js"></script>
+    <script src="../config/env-loader.js"></script>
+
     <!-- Firebase SDK - Deferred Loading -->
     <script type="module" defer>
         try {
@@ -965,24 +995,19 @@
             const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
             const { signOut, onAuthStateChanged, createUserWithEmailAndPassword } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
             const { doc, setDoc, getDoc, collection, addDoc, updateDoc, deleteDoc, getDocs, query, where, onSnapshot } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            
-            // Firebase Configuration - Embedded directly to avoid import issues
-            const firebaseConfig = {
-                apiKey: "AIzaSyB23aqjvtZEBFatxsJf2Xz3UnKIv4T6C_g",
-                authDomain: "library-management-35906.firebaseapp.com",
-                databaseURL: "https://library-management-35906-default-rtdb.firebaseio.com",
-                projectId: "library-management-35906",
-                storageBucket: "library-management-35906.firebasestorage.app",
-                messagingSenderId: "204321553381",
-                appId: "1:204321553381:web:0ee02854d1c2fd3a1fcd0c",
-                measurementId: "G-L9LKBLT153"
-            };
-        
+
+            // Get Firebase configuration from environment
+            const firebaseConfig = window.firebaseConfig || window.ENV?.firebaseConfig;
+
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Firebase configuration not found. Please check env-config.js');
+            }
+
             // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
             const db = getFirestore(app);
-            
+
             // Make Firebase available globally
             window.firebaseAuth = auth;
             window.firebaseDb = db;
@@ -1000,14 +1025,14 @@
             window.query = query;
             window.where = where;
             window.onSnapshot = onSnapshot;
-            
+
             // Initialize admin features
             initializeAdminFeatures();
         } catch (error) {
             console.error('Failed to load Firebase:', error);
             showMessage('Unable to connect to authentication service. Please check your connection.', 'error');
         }
-        
+
         function initializeAdminFeatures() {
             // Check if user is already logged in and is admin
             if (window.onAuthStateChanged && window.firebaseAuth) {
@@ -1019,23 +1044,23 @@
                     }
                 });
             }
-            
+
             // Add form event listeners
             const addBookForm = document.getElementById('addBookForm');
             const editBookForm = document.getElementById('editBookForm');
-            
+
             if (addBookForm) {
                 addBookForm.addEventListener('submit', handleAddBook);
             }
-            
+
             if (editBookForm) {
                 editBookForm.addEventListener('submit', handleEditBook);
             }
-            
+
             // Load initial data
             loadDashboardData();
         }
-        
+
         // Global functions
         window.handleLogout = handleLogout;
         window.showSection = showSection;
@@ -1051,4 +1076,5 @@
     <!-- Admin Script -->
     <script src="../assets/js/admin.js" defer></script>
 </body>
+
 </html>

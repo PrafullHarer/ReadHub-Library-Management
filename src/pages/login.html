@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -9,24 +10,30 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="ReadHub Login">
     <title>Login - ReadHub Library Management System</title>
-    
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Login to ReadHub - the modern library management system with AI-powered features and seamless user experience.">
+    <meta name="description"
+        content="Login to ReadHub - the modern library management system with AI-powered features and seamless user experience.">
     <meta name="keywords" content="login, library management, librarian login, student login, modern library system">
     <meta name="robots" content="noindex, nofollow">
-    
+
     <!-- Preload Critical Resources -->
     <link rel="preload" href="../assets/css/login-styles.css" as="style">
-    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style" crossorigin="anonymous">
-    
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style"
+        crossorigin="anonymous">
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="../assets/css/login-styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css" crossorigin="anonymous">
-    
+    <link rel="stylesheet" href="../assets/css/responsive-utilities.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css"
+        crossorigin="anonymous">
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="../assets/library.png">
 </head>
+
 <body>
     <!-- Background Effects -->
     <div class="background-effects">
@@ -57,7 +64,7 @@
                 <div class="form-header">
                     <h2 class="form-title">Welcome Back!</h2>
                     <p class="form-subtitle">Sign in to continue your library journey</p>
-            </div>
+                </div>
 
                 <!-- Login Form -->
                 <form id="loginForm" class="login-form" novalidate>
@@ -71,8 +78,8 @@
                             <select id="userType" name="userType" class="form-select" required>
                                 <option value="">Choose your account type</option>
                                 <option value="user">Student / Member</option>
-                            <option value="admin">Administrator</option>
-                        </select>
+                                <option value="admin">Administrator</option>
+                            </select>
                             <i class="fas fa-chevron-down select-icon" aria-hidden="true"></i>
                         </div>
                     </div>
@@ -84,7 +91,8 @@
                             Email Address
                         </label>
                         <div class="input-wrapper">
-                            <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email address" required>
+                            <input type="email" id="email" name="email" class="form-input"
+                                placeholder="Enter your email address" required>
                             <i class="fas fa-envelope input-icon" aria-hidden="true"></i>
                         </div>
                     </div>
@@ -96,9 +104,11 @@
                             Password
                         </label>
                         <div class="input-wrapper">
-                            <input type="password" id="password" name="password" class="form-input" placeholder="Enter your password" required>
+                            <input type="password" id="password" name="password" class="form-input"
+                                placeholder="Enter your password" required>
                             <i class="fas fa-lock input-icon" aria-hidden="true"></i>
-                            <button type="button" class="password-toggle" onclick="togglePassword()" aria-label="Toggle password visibility">
+                            <button type="button" class="password-toggle" onclick="togglePassword()"
+                                aria-label="Toggle password visibility">
                                 <i class="fas fa-eye" id="passwordToggleIcon" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -122,17 +132,17 @@
                         <i class="fas fa-arrow-right button-icon" aria-hidden="true"></i>
                     </button>
                 </form>
-                    </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Message Containers -->
     <div id="errorMessage" class="message-container error-message" style="display: none;" role="alert">
         <div class="message-content">
             <i class="fas fa-exclamation-circle" aria-hidden="true"></i>
             <span class="message-text"></span>
-                        </div>
-                    </div>
+        </div>
+    </div>
 
     <div id="successMessage" class="message-container success-message" style="display: none;" role="alert">
         <div class="message-content">
@@ -141,10 +151,13 @@
         </div>
     </div>
 
+    <!-- Environment Configuration -->
+    <script src="../config/env-config.js"></script>
+    <script src="../config/env-loader.js"></script>
 
     <!-- Firebase SDK -->
     <script type="module" src="../assets/js/firebase-init.js"></script>
-    
+
     <!-- Load Auth Script after Firebase is initialized -->
     <script src="../assets/js/auth.js"></script>
 
@@ -172,4 +185,5 @@
     </footer>
 
 </body>
+
 </html>

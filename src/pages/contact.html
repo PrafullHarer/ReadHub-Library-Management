@@ -1,14 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="theme-color" content="#000000">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>Contact Us - ReadHub Library Management</title>
     <link rel="stylesheet" href="../assets/css/styles.css">
     <link rel="stylesheet" href="../assets/css/contact-styles.css">
+    <link rel="stylesheet" href="../assets/css/responsive-utilities.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css"
+        crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="../assets/library.png">
 </head>
+
 <body>
     <!-- Background Effects -->
     <div class="background-effects">
@@ -53,7 +62,8 @@
                 <div class="hero-content">
                     <h1 class="hero-title">Meet Our <span class="gradient-text">Amazing Team</span></h1>
                     <p class="hero-description">
-                        We're passionate about revolutionizing library management and making knowledge accessible to everyone. 
+                        We're passionate about revolutionizing library management and making knowledge accessible to
+                        everyone.
                         Get to know the dedicated professionals behind ReadHub.
                     </p>
                 </div>
@@ -77,8 +87,9 @@
                             <h3 class="member-name">Prafull Harer</h3>
                             <p class="member-role">Project Director & Lead Developer</p>
                             <p class="member-bio">
-                                Prafull leads our development team with extensive experience in web technologies 
-                                and library management systems. He's passionate about creating innovative and user-friendly solutions 
+                                Prafull leads our development team with extensive experience in web technologies
+                                and library management systems. He's passionate about creating innovative and
+                                user-friendly solutions
                                 that revolutionize how libraries operate.
                             </p>
                             <div class="member-social">
@@ -97,8 +108,9 @@
                             <h3 class="member-name">Parth Mokal</h3>
                             <p class="member-role">UI/UX Designer & Frontend Developer</p>
                             <p class="member-bio">
-                                Parth creates beautiful and intuitive interfaces that make library management 
-                                a delightful experience. He combines his design skills with frontend development expertise 
+                                Parth creates beautiful and intuitive interfaces that make library management
+                                a delightful experience. He combines his design skills with frontend development
+                                expertise
                                 to deliver exceptional user experiences.
                             </p>
                             <div class="member-social">
@@ -117,8 +129,8 @@
                             <h3 class="member-name">Tanish Jadhav</h3>
                             <p class="member-role">Backend Developer & Database Specialist</p>
                             <p class="member-bio">
-                                Tanish specializes in backend development and database management, ensuring 
-                                that ReadHub's infrastructure is robust and scalable. His expertise in server-side 
+                                Tanish specializes in backend development and database management, ensuring
+                                that ReadHub's infrastructure is robust and scalable. His expertise in server-side
                                 technologies helps maintain the system's performance and reliability.
                             </p>
                             <div class="member-social">
@@ -137,7 +149,8 @@
             <div class="contact-container">
                 <div class="section-header">
                     <h2 class="section-title">Get In Touch</h2>
-                    <p class="section-subtitle">We'd love to hear from you. Reach out to us through any of these channels.</p>
+                    <p class="section-subtitle">We'd love to hear from you. Reach out to us through any of these
+                        channels.</p>
                 </div>
 
                 <div class="contact-grid">
@@ -268,34 +281,33 @@
         </div>
     </footer>
 
+    <!-- Environment Configuration -->
+    <script src="../config/env-config.js"></script>
+    <script src="../config/env-loader.js"></script>
+
     <!-- Firebase SDK - Deferred Loading -->
     <script type="module" defer>
         try {
             const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
             const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
             const { addDoc, collection } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
-            
-            // Firebase Configuration - Embedded directly to avoid import issues
-            const firebaseConfig = {
-                apiKey: "AIzaSyB23aqjvtZEBFatxsJf2Xz3UnKIv4T6C_g",
-                authDomain: "library-management-35906.firebaseapp.com",
-                databaseURL: "https://library-management-35906-default-rtdb.firebaseio.com",
-                projectId: "library-management-35906",
-                storageBucket: "library-management-35906.firebasestorage.app",
-                messagingSenderId: "204321553381",
-                appId: "1:204321553381:web:0ee02854d1c2fd3a1fcd0c",
-                measurementId: "G-L9LKBLT153"
-            };
-        
+
+            // Get Firebase configuration from environment
+            const firebaseConfig = window.firebaseConfig || window.ENV?.firebaseConfig;
+
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                throw new Error('Firebase configuration not found. Please check env-config.js');
+            }
+
             // Initialize Firebase
             const app = initializeApp(firebaseConfig);
             const db = getFirestore(app);
-            
+
             // Make Firebase available globally
             window.firebaseDb = db;
             window.addDoc = addDoc;
             window.collection = collection;
-            
+
             console.log('✅ Firebase initialized for contact page');
         } catch (error) {
             console.error('❌ Failed to load Firebase:', error);
@@ -304,4 +316,5 @@
 
     <script src="../assets/js/contact.js"></script>
 </body>
+
 </html>

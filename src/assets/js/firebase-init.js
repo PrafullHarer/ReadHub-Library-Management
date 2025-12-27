@@ -7,17 +7,15 @@ import { getFirestore, doc, getDoc, setDoc, collection, getDocs, addDoc, updateD
 
 console.log('📦 Firebase modules imported successfully');
 
-// Firebase Configuration - Embedded directly to avoid import issues
-const firebaseConfig = {
-    apiKey: "AIzaSyB23aqjvtZEBFatxsJf2Xz3UnKIv4T6C_g",
-    authDomain: "library-management-35906.firebaseapp.com",
-    databaseURL: "https://library-management-35906-default-rtdb.firebaseio.com",
-    projectId: "library-management-35906",
-    storageBucket: "library-management-35906.firebasestorage.app",
-    messagingSenderId: "204321553381",
-    appId: "1:204321553381:web:0ee02854d1c2fd3a1fcd0c",
-    measurementId: "G-L9LKBLT153"
-};
+// Get Firebase Configuration from environment
+// The env-config.js should be loaded before this script in HTML
+const firebaseConfig = window.firebaseConfig || window.ENV?.firebaseConfig;
+
+if (!firebaseConfig || !firebaseConfig.apiKey) {
+    console.error('❌ Firebase configuration not found!');
+    console.error('Please ensure env-config.js is loaded before firebase-init.js');
+    throw new Error('Firebase configuration not found. Please check env-config.js');
+}
 
 console.log('⚙️ Firebase configuration loaded:', {
     projectId: firebaseConfig.projectId,

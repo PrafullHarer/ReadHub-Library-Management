@@ -1,5 +1,16 @@
-# Firebase configuration (if you want to keep your actual config private)
+# Firebase configuration (keep actual config private for development)
+# NOTE: For Vercel deployment, env-config.js must be committed
+# Firebase client-side API keys are safe to expose; security is handled by Firebase rules
 config.js
+.env
+.env.local
+.env.production
+.env.development
+.env*.local
+
+# Keep example files tracked
+!.env.example
+!src/config/env-config.example.js
 
 # Node modules
 node_modules/
@@ -59,3 +70,6 @@ Thumbs.db
 .firebase/
 firebase-debug.log
 firestore-debug.log
+
+# Vercel
+.vercel

@@ -1,310 +1,423 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="theme-color" content="#000000">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ReadHub - Modern Digital Library</title>
-    
+    <meta name="apple-mobile-web-app-title" content="ReadHub">
+    <title>ReadHub - Modern Library Management System</title>
+
     <!-- SEO Meta Tags -->
-    <meta name="description" content="Experience the future of library management with our modern digital platform. Seamlessly borrow books, track reading history, and manage library collections.">
-    <meta name="keywords" content="library management, digital library, book borrowing, modern library, student portal">
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/x-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
-    
-    <!-- Mobile Optimized Styles -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 1rem;
-            overflow-x: hidden;
-        }
-        
-        .redirect-container {
-            text-align: center;
-            max-width: 500px; /* Increased for desktop */
-            width: 100%;
-            padding: 3rem 2.5rem; /* Increased padding for desktop */
-            background: white;
-            border-radius: 1.5rem; /* More rounded for desktop */
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-        }
-        
-        .brand-icon {
-            width: 80px; /* Larger for desktop */
-            height: 80px;
-            background: #000000;
-            border-radius: 1.5rem; /* More rounded */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem; /* More margin */
-            font-size: 2rem; /* Larger icon */
-            color: white;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .brand-text {
-            font-size: 2.25rem; /* Larger for desktop */
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 1.5rem;
-        }
-        
-        .redirect-message {
-            color: #666;
-            margin-bottom: 2rem; /* More margin */
-            line-height: 1.6;
-            font-size: 1.125rem; /* Larger text */
-        }
-        
-        .redirect-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem; /* More gap */
-            padding: 1rem 2rem; /* Larger padding */
-            background: #000000;
-            color: white;
-            text-decoration: none;
-            border-radius: 1rem; /* More rounded */
-            font-weight: 600;
-            font-size: 1.125rem; /* Larger text */
-            transition: all 0.3s ease;
-            border: 1px solid transparent;
-            min-height: 56px; /* Touch-friendly height */
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .redirect-link:hover {
-            background: #333333;
-            transform: translateY(-3px); /* More lift */
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-        }
-        
-        .redirect-link:active {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .loading-spinner {
-            width: 24px; /* Larger spinner */
-            height: 24px;
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        /* Desktop specific optimizations */
-        @media (min-width: 769px) {
-            .redirect-container {
-                max-width: 600px;
-                padding: 4rem 3rem;
-            }
-            
-            .brand-icon {
-                width: 100px;
-                height: 100px;
-                font-size: 2.5rem;
-                margin-bottom: 2rem;
-            }
-            
-            .brand-text {
-                font-size: 2.75rem;
-                margin-bottom: 2rem;
-            }
-            
-            .redirect-message {
-                font-size: 1.25rem;
-                margin-bottom: 2.5rem;
-            }
-            
-            .redirect-link {
-                padding: 1.25rem 2.5rem;
-                font-size: 1.25rem;
-                min-height: 64px;
-                gap: 1rem;
-            }
-            
-            .loading-spinner {
-                width: 28px;
-                height: 28px;
-                border-width: 3px;
-            }
-        }
-        
-        /* Large desktop optimizations */
-        @media (min-width: 1200px) {
-            .redirect-container {
-                max-width: 700px;
-                padding: 5rem 4rem;
-            }
-            
-            .brand-icon {
-                width: 120px;
-                height: 120px;
-                font-size: 3rem;
-                margin-bottom: 2.5rem;
-            }
-            
-            .brand-text {
-                font-size: 3.25rem;
-                margin-bottom: 2.5rem;
-            }
-            
-            .redirect-message {
-                font-size: 1.375rem;
-                margin-bottom: 3rem;
-            }
-            
-            .redirect-link {
-                padding: 1.5rem 3rem;
-                font-size: 1.375rem;
-                min-height: 72px;
-                gap: 1.25rem;
-            }
-            
-            .loading-spinner {
-                width: 32px;
-                height: 32px;
-                border-width: 4px;
-            }
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Mobile specific optimizations */
-        @media (max-width: 768px) {
-            .redirect-container {
-                max-width: 450px;
-                padding: 2rem 1.5rem;
-            }
-            
-            .brand-icon {
-                width: 70px;
-                height: 70px;
-                font-size: 1.75rem;
-                margin-bottom: 1.25rem;
-            }
-            
-            .brand-text {
-                font-size: 2rem;
-                margin-bottom: 1.25rem;
-            }
-            
-            .redirect-message {
-                font-size: 1rem;
-                margin-bottom: 1.75rem;
-            }
-            
-            .redirect-link {
-                padding: 0.875rem 1.75rem;
-                font-size: 1rem;
-                min-height: 52px;
-            }
-            
-            .loading-spinner {
-                width: 22px;
-                height: 22px;
-            }
-        }
-        
-        /* Small mobile specific optimizations */
-        @media (max-width: 480px) {
-            .redirect-container {
-                padding: 1.5rem;
-                margin: 0.5rem;
-                max-width: calc(100% - 1rem);
-            }
-            
-            .brand-icon {
-                width: 60px;
-                height: 60px;
-                font-size: 1.5rem;
-                margin-bottom: 1rem;
-            }
-            
-            .brand-text {
-                font-size: 1.5rem;
-                margin-bottom: 1rem;
-            }
-            
-            .redirect-message {
-                font-size: 0.9rem;
-                margin-bottom: 1.5rem;
-            }
-            
-            .redirect-link {
-                width: 100%;
-                justify-content: center;
-                padding: 0.75rem 1.5rem;
-                font-size: 0.95rem;
-                min-height: 48px;
-            }
-            
-            .loading-spinner {
-                width: 20px;
-                height: 20px;
-            }
-        }
-        
-        /* Touch-friendly interactions */
-        @media (hover: none) and (pointer: coarse) {
-            .redirect-link {
-                min-height: 44px;
-                font-size: 1.1rem;
-            }
-        }
-    </style>
-    
-    <meta http-equiv="refresh" content="3; url=src/pages/welcome.html">
+    <meta name="description"
+        content="Experience the future of library management with our modern digital platform. Seamlessly borrow books, track reading history, and manage library collections with cutting-edge technology.">
+    <meta name="keywords"
+        content="library management, digital library, book borrowing, modern library, student portal, admin panel, Firebase">
+    <meta name="author" content="ReadHub">
+    <meta name="robots" content="index, follow">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="ReadHub - Modern Library Management System">
+    <meta property="og:description"
+        content="Experience the future of library management with our modern digital platform. Seamlessly borrow books, track reading history, and manage library collections.">
+    <meta property="og:type" content="website">
+
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="src/assets/css/styles.css" as="style">
+    <link rel="preload" href="src/assets/css/responsive-utilities.css" as="style">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" as="style"
+        crossorigin="anonymous">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="src/assets/css/styles.css">
+    <link rel="stylesheet" href="src/assets/css/responsive-utilities.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@flaticon/flaticon-uicons-bold/css/uicons-bold.css"
+        crossorigin="anonymous">
+
+    <!-- Favicon and Mobile Icons -->
+    <link rel="icon" type="image/png" href="src/assets/library.png">
+    <link rel="apple-touch-icon" href="src/assets/library.png">
 </head>
+
 <body>
-    <div class="redirect-container">
-        <div class="brand-icon">
-            <span>📚</span>
+    <!-- Navigation -->
+    <nav class="navbar" role="navigation" aria-label="Main navigation">
+        <div class="nav-container">
+            <a href="index.html" class="nav-brand">
+                <div class="brand-icon">
+                    <img src="src/assets/library.png" alt="ReadHub Logo" class="brand-logo">
+                </div>
+                <span class="brand-text">ReadHub</span>
+            </a>
+            <div class="nav-actions">
+                <a href="src/pages/contact.html" class="btn-login" aria-label="Contact us">
+                    <i class="fi fi-br-envelope" aria-hidden="true"></i>
+                    <span>Contact</span>
+                </a>
+                <a href="src/pages/login.html" class="btn-login" aria-label="Login to your account">
+                    <i class="fi fi-br-sign-in" aria-hidden="true"></i>
+                    <span>Login</span>
+                </a>
+            </div>
         </div>
-        <h1 class="brand-text">ReadHub</h1>
-        <p class="redirect-message">
-            Redirecting to our modern digital library platform...
-        </p>
-        <a href="src/pages/welcome.html" class="redirect-link">
-            <div class="loading-spinner"></div>
-            <span>Continue to Library</span>
-        </a>
-    </div>
-    
-    <script>
-        // Immediate redirect for better UX
-        setTimeout(() => {
-            window.location.href = 'src/pages/welcome.html';
-        }, 2000);
-        
-        // Handle back button and page visibility
-        document.addEventListener('visibilitychange', () => {
-            if (!document.hidden) {
-                window.location.href = 'src/pages/welcome.html';
-            }
-        });
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content" role="main">
+        <!-- Hero Section -->
+        <section class="hero" aria-labelledby="hero-title">
+            <div class="hero-container">
+                <div class="hero-content">
+                    <div class="hero-badge">
+                        <i class="fas fa-star" aria-hidden="true"></i>
+                        <span>Next-Gen Library System</span>
+                    </div>
+                    <h1 id="hero-title" class="hero-title">
+                        Welcome to the <span class="gradient-text">Future</span> of
+                        <span class="highlight-text">Digital Libraries</span>
+                    </h1>
+                    <p class="hero-description">
+                        Experience seamless book management, intelligent recommendations, and real-time collaboration in
+                        our cutting-edge library ecosystem.
+                    </p>
+                    <div class="hero-actions">
+                        <a href="src/pages/login.html" class="btn-primary" aria-label="Start your library journey">
+                            <span>Get Started</span>
+                            <i class="fas fa-arrow-right" aria-hidden="true"></i>
+                        </a>
+                        <a href="#features" class="btn-secondary" aria-label="Discover our features">
+                            <i class="fas fa-play" aria-hidden="true"></i>
+                            <span>Watch Demo</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="hero-visual" aria-hidden="true">
+                    <div class="floating-books">
+                        <div class="book-item book-1">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="book-item book-2">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="book-item book-3">
+                            <i class="fas fa-book"></i>
+                        </div>
+                        <div class="book-item book-4">
+                            <i class="fas fa-book"></i>
+                        </div>
+                    </div>
+                    <div class="tech-grid">
+                        <div class="tech-grid-item"></div>
+                        <div class="tech-grid-item"></div>
+                        <div class="tech-grid-item"></div>
+                        <div class="tech-grid-item"></div>
+                        <div class="tech-grid-item"></div>
+                        <div class="tech-grid-item"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features Section -->
+        <section id="features" class="features-section" aria-labelledby="features-title">
+            <div class="features-container">
+                <div class="section-header">
+                    <h2 id="features-title" class="section-title">Powerful Features</h2>
+                    <p class="section-subtitle">Everything you need for modern library management</p>
+                </div>
+
+                <div class="features-grid">
+                    <article class="feature-card" role="listitem">
+                        <div class="feature-icon">
+                            <i class="fi fi-br-shield-check" aria-hidden="true"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Secure Authentication</h3>
+                            <p>Enterprise-grade security with Firebase authentication, role-based access control, and
+                                encrypted data transmission.</p>
+                            <div class="feature-tags">
+                                <span class="tag">Firebase</span>
+                                <span class="tag">Encryption</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="feature-card" role="listitem">
+                        <div class="feature-icon">
+                            <i class="fi fi-br-brain" aria-hidden="true"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Smart Recommendations</h3>
+                            <p>AI-powered book suggestions based on reading history, preferences, and trending topics in
+                                your field.</p>
+                            <div class="feature-tags">
+                                <span class="tag">AI</span>
+                                <span class="tag">ML</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="feature-card" role="listitem">
+                        <div class="feature-icon">
+                            <i class="fi fi-br-clock" aria-hidden="true"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Real-time Updates</h3>
+                            <p>Instant notifications for due dates, new arrivals, reservation status, and library
+                                announcements.</p>
+                            <div class="feature-tags">
+                                <span class="tag">Real-time</span>
+                                <span class="tag">Push</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="feature-card" role="listitem">
+                        <div class="feature-icon">
+                            <i class="fi fi-br-chart-line-up" aria-hidden="true"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Analytics Dashboard</h3>
+                            <p>Comprehensive insights into reading patterns, popular titles, and library usage
+                                statistics.</p>
+                            <div class="feature-tags">
+                                <span class="tag">Analytics</span>
+                                <span class="tag">Reports</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="feature-card" role="listitem">
+                        <div class="feature-icon">
+                            <i class="fi fi-br-mobile" aria-hidden="true"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Mobile Optimized</h3>
+                            <p>Responsive design that works flawlessly on all devices, from smartphones to tablets and
+                                desktops.</p>
+                            <div class="feature-tags">
+                                <span class="tag">Responsive</span>
+                                <span class="tag">PWA</span>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="feature-card" role="listitem">
+                        <div class="feature-icon">
+                            <i class="fi fi-br-settings" aria-hidden="true"></i>
+                        </div>
+                        <div class="feature-content">
+                            <h3>Admin Control</h3>
+                            <p>Comprehensive admin panel for managing books, users, reservations, and system
+                                configurations.</p>
+                            <div class="feature-tags">
+                                <span class="tag">Admin</span>
+                                <span class="tag">Management</span>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section" aria-labelledby="stats-title">
+            <div class="stats-container">
+                <div class="stats-grid">
+                    <div class="stat-item" role="region">
+                        <div class="stat-number" data-target="1000">0</div>
+                        <div class="stat-label">Books Available</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-book" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="stat-item" role="region">
+                        <div class="stat-number" data-target="500">0</div>
+                        <div class="stat-label">Active Users</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-users" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="stat-item" role="region">
+                        <div class="stat-number" data-target="99">0</div>
+                        <div class="stat-label">Uptime %</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-server" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                    <div class="stat-item" role="region">
+                        <div class="stat-number" data-target="24">0</div>
+                        <div class="stat-label">Support Hours</div>
+                        <div class="stat-icon">
+                            <i class="fas fa-clock" aria-hidden="true"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta-section" aria-labelledby="cta-title">
+            <div class="cta-container">
+                <div class="cta-content">
+                    <h2 id="cta-title" class="cta-title">Ready to Transform Your Library Experience?</h2>
+                    <p class="cta-description">
+                        Join thousands of users already enjoying our modern library management platform.
+                        Start your journey today and discover a new way to interact with books and knowledge.
+                    </p>
+                    <div class="cta-actions">
+                        <a href="src/pages/login.html" class="btn-primary-large"
+                            aria-label="Start using the library system now">
+                            <span>Start Now</span>
+                            <i class="fas fa-rocket" aria-hidden="true"></i>
+                        </a>
+                        <div class="cta-trust">
+                            <span>Trusted by</span>
+                            <div class="trust-icons">
+                                <i class="fas fa-university" aria-hidden="true"></i>
+                                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                                <i class="fas fa-school" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="footer-container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-brand-content">
+                        <img src="src/assets/library.png" alt="ReadHub Logo" class="footer-logo">
+                        <span class="brand-text">ReadHub</span>
+                    </div>
+                    <p class="brand-description">Modern Library Management System</p>
+                </div>
+                <div class="footer-links">
+                    <a href="index.html">Home</a>
+                    <a href="src/pages/login.html">Login</a>
+                    <a href="src/pages/contact.html">Contact</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 ReadHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Structured Data for SEO -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "ReadHub - Library Management System",
+        "description": "Modern library management system with AI-powered recommendations, real-time updates, and comprehensive analytics.",
+        "url": "",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Web Browser",
+        "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+        },
+        "featureList": [
+            "Secure Authentication",
+            "Smart Recommendations",
+            "Real-time Updates",
+            "Analytics Dashboard",
+            "Mobile Optimized",
+            "Admin Control"
+        ]
+    }
     </script>
+
+    <!-- Environment Configuration -->
+    <script src="src/config/env-config.js"></script>
+    <script src="src/config/env-loader.js"></script>
+
+    <!-- Firebase SDK - Deferred Loading -->
+    <script type="module" defer>
+        try {
+            const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js');
+            const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js');
+            const { getFirestore } = await import('https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js');
+
+            // Get Firebase configuration from environment
+            const firebaseConfig = window.firebaseConfig || window.ENV?.firebaseConfig;
+
+            if (!firebaseConfig || !firebaseConfig.apiKey) {
+                console.warn('Firebase configuration not found. Some features may not work.');
+            } else {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getFirestore(app);
+
+                window.firebaseAuth = auth;
+                window.firebaseDb = db;
+                console.log('✅ Firebase initialized');
+            }
+
+            // Initialize animations and interactive features
+            initializeAnimations();
+        } catch (error) {
+            console.error('Failed to load Firebase:', error);
+            // Still initialize animations even if Firebase fails
+            initializeAnimations();
+        }
+
+        function initializeAnimations() {
+            // Mobile-specific optimizations
+            const isMobile = window.innerWidth <= 768 || /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+            // Counter animation for stats
+            const counters = document.querySelectorAll('.stat-number');
+            const observerOptions = {
+                threshold: isMobile ? 0.5 : 0.7,
+                rootMargin: isMobile ? '0px 0px -50px 0px' : '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        animateCounter(entry.target);
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            counters.forEach(counter => observer.observe(counter));
+
+            // Mobile-specific optimizations
+            if (isMobile) {
+                document.body.classList.add('touch-device');
+            }
+        }
+
+        function animateCounter(element) {
+            const target = parseInt(element.dataset.target);
+            const increment = target / 100;
+            let current = 0;
+
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    current = target;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.floor(current);
+            }, 20);
+        }
+    </script>
+
+    <script src="src/assets/js/script.js" defer></script>
 </body>
+
 </html>
