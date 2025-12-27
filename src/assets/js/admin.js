@@ -23,7 +23,7 @@ function initializeAdminDashboard() {
             }
         }, 1000);
     }
-    
+
     // Also load borrowed books initially as a fallback
     setTimeout(() => {
         if (borrowedBooks.length === 0) {
@@ -39,11 +39,12 @@ async function checkAdminStatus(user) {
         const userDoc = await window.getDoc(window.doc(window.firebaseDb, 'users', user.uid));
         if (userDoc.exists()) {
             const userData = userDoc.data();
-            
+
             if (userData.role === 'admin') {
                 currentUser = user;
                 const displayName = userData.name || user.email;
-                document.getElementById('adminName').textContent = displayName;
+                const adminNameEl = document.getElementById('adminName');
+                if (adminNameEl) adminNameEl.textContent = displayName;
                 loadDashboardData();
             } else {
                 // Check if this is a newly created user (created within last 5 seconds)
@@ -51,11 +52,11 @@ async function checkAdminStatus(user) {
                 const now = new Date();
                 const creationTime = new Date(userCreationTime);
                 const timeDiff = now - creationTime;
-                
+
                 if (timeDiff < 5000) { // Less than 5 seconds ago
                     return; // Just ignore this authentication state change
                 }
-                
+
                 showMessage('Access denied. Admin privileges required.', 'error');
                 setTimeout(() => {
                     window.location.href = 'index.html';
@@ -68,11 +69,11 @@ async function checkAdminStatus(user) {
             const now = new Date();
             const creationTime = new Date(userCreationTime);
             const timeDiff = now - creationTime;
-            
+
             if (timeDiff < 5000) { // Less than 5 seconds ago
                 return; // Just ignore this authentication state change
             }
-            
+
             showMessage('User profile not found.', 'error');
             setTimeout(() => {
                 window.location.href = 'login.html';
@@ -95,7 +96,7 @@ async function loadDashboardData() {
         showMessage('Firebase functions not ready. Please refresh the page and try again.', 'error');
         return;
     }
-    
+
     try {
         await Promise.all([
             loadBooks(),
@@ -164,10 +165,10 @@ async function loadFeedback() {
         feedbackSnapshot.forEach(doc => {
             feedback.push({ id: doc.id, ...doc.data() });
         });
-        
+
         // Sync any pending feedback from localStorage
         await syncPendingFeedbackFromLocalStorage();
-        
+
         filteredFeedback = [...feedback];
         renderFeedbackTable();
         updateFeedbackStats();
@@ -181,13 +182,13 @@ async function loadFeedback() {
 async function syncPendingFeedbackFromLocalStorage() {
     try {
         const pendingFeedback = JSON.parse(localStorage.getItem('pendingFeedback') || '[]');
-        
+
         if (pendingFeedback.length === 0) {
             return; // No pending feedback
         }
-        
+
         console.log(`🔄 Syncing ${pendingFeedback.length} pending feedback items from localStorage...`);
-        
+
         for (const feedbackItem of pendingFeedback) {
             try {
                 // Convert createdAt back to Date object
@@ -195,7 +196,7 @@ async function syncPendingFeedbackFromLocalStorage() {
                     ...feedbackItem,
                     createdAt: new Date(feedbackItem.createdAt)
                 };
-                
+
                 // Save to Firebase
                 await window.addDoc(window.collection(window.firebaseDb, 'feedback'), feedbackData);
                 console.log('✅ Synced feedback:', feedbackItem.subject);
@@ -203,18 +204,18 @@ async function syncPendingFeedbackFromLocalStorage() {
                 console.error('❌ Error syncing feedback item:', error);
             }
         }
-        
+
         // Clear localStorage after successful sync
         localStorage.removeItem('pendingFeedback');
         console.log('✅ All pending feedback synced successfully');
-        
+
         // Reload feedback to show the newly synced items
         const feedbackSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'feedback'));
         feedback = [];
         feedbackSnapshot.forEach(doc => {
             feedback.push({ id: doc.id, ...doc.data() });
         });
-        
+
     } catch (error) {
         console.error('❌ Error syncing pending feedback:', error);
     }
@@ -284,11 +285,11 @@ function renderUsersTable() {
                     <button class="btn-action btn-edit" onclick="openEditUserModal('${user.id}')" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
-                    ${user.status === 'pending' ? 
-                        `<button class="btn-action btn-approve" onclick="approveUser('${user.id}')" title="Approve">
+                    ${user.status === 'pending' ?
+                `<button class="btn-action btn-approve" onclick="approveUser('${user.id}')" title="Approve">
                             <i class="fas fa-check"></i>
                         </button>` : ''
-                    }
+            }
                     <button class="btn-action btn-delete" onclick="deleteUser('${user.id}')" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -303,7 +304,7 @@ function renderUsersTable() {
 function renderFeedbackTable() {
     const tbody = document.getElementById('feedbackTableBody');
     if (!tbody) return;
-    
+
     tbody.innerHTML = '';
 
     if (filteredFeedback.length === 0) {
@@ -326,7 +327,7 @@ function renderFeedbackTable() {
         const statusClass = getFeedbackStatusClass(feedbackItem.status);
         const typeClass = getFeedbackTypeClass(feedbackItem.type);
         const priorityClass = getFeedbackPriorityClass(feedbackItem.priority);
-        
+
         row.innerHTML = `
             <td>
                 <div class="feedback-info">
@@ -413,7 +414,7 @@ function openEditBookModal(bookId) {
         document.getElementById('editBookCondition').value = book.condition || 'good';
         document.getElementById('editBookAvailability').value = book.availability || 'available';
         document.getElementById('editBookDescription').value = book.description || '';
-        
+
         document.getElementById('editBookModal').classList.add('active');
     }
 }
@@ -441,17 +442,17 @@ function openEditUserModal(userId) {
         showMessage('User not found.', 'error');
         return;
     }
-    
+
     // Populate form with user data
     document.getElementById('editUserId').value = user.id;
     document.getElementById('editUserFullName').value = user.fullName || '';
     document.getElementById('editUserEmail').value = user.email || '';
     document.getElementById('editUserStatus').value = user.status || 'active';
     document.getElementById('editUserRole').value = user.role || 'user';
-    
+
     // Load member data if available
     loadMemberDataForEdit(userId);
-    
+
     document.getElementById('editUserModal').classList.add('active');
 }
 
@@ -460,14 +461,14 @@ async function loadMemberDataForEdit(userId) {
     try {
         const membersSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'members'));
         let memberData = null;
-        
+
         membersSnapshot.forEach(doc => {
             const data = doc.data();
             if (data.userId === userId) {
                 memberData = { id: doc.id, ...data };
             }
         });
-        
+
         if (memberData) {
             // Populate member-specific fields
             document.getElementById('editUserPhone').value = memberData.phone || '';
@@ -490,10 +491,10 @@ function closeEditUserModal() {
 // Handle edit user form submission
 async function handleEditUser(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const userId = formData.get('userId');
-    
+
     // Update user data
     const userData = {
         email: formData.get('email'),
@@ -502,7 +503,7 @@ async function handleEditUser(event) {
         status: formData.get('status'),
         lastLogin: null // Keep existing lastLogin or set to null
     };
-    
+
     // Update member data
     const memberData = {
         email: formData.get('email'),
@@ -515,46 +516,46 @@ async function handleEditUser(event) {
         updatedAt: new Date(),
         updatedBy: currentUser.uid
     };
-    
+
     try {
         // Step 1: Update user record
         await window.updateDoc(
-            window.doc(window.firebaseDb, 'users', userId), 
+            window.doc(window.firebaseDb, 'users', userId),
             userData
         );
-        
+
         // Step 2: Find and update member record
         const membersSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'members'));
         let memberToUpdate = null;
-        
+
         membersSnapshot.forEach(doc => {
             const data = doc.data();
             if (data.userId === userId) {
                 memberToUpdate = { id: doc.id, ...data };
             }
         });
-        
+
         if (memberToUpdate) {
             await window.updateDoc(
-                window.doc(window.firebaseDb, 'members', memberToUpdate.id), 
+                window.doc(window.firebaseDb, 'members', memberToUpdate.id),
                 memberData
             );
         } else {
         }
-        
+
         showMessage('User details updated successfully!', 'success');
         closeEditUserModal();
         loadUsers();
         loadStats();
-        
+
     } catch (error) {
         console.error('Error updating user:', error);
         let errorMessage = 'Error updating user. Please try again.';
-        
+
         if (error.code === 'permission-denied') {
             errorMessage = 'Permission denied. Check Firestore security rules.';
         }
-        
+
         showMessage(errorMessage, 'error');
     }
 }
@@ -562,7 +563,7 @@ async function handleEditUser(event) {
 // Handle add book form submission
 async function handleAddBook(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const bookData = {
         title: formData.get('title'),
@@ -590,10 +591,10 @@ async function handleAddBook(event) {
 // Handle add user form submission
 async function handleAddUser(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const password = formData.get('password');
-    
+
     // Minimal user data for 'users' collection (only essential authentication fields)
     const userData = {
         email: formData.get('email'),
@@ -603,19 +604,19 @@ async function handleAddUser(event) {
         joinedDate: new Date(),
         lastLogin: null
     };
-    
+
     // Complete member data for 'members' collection (all other details)
     const memberData = {
         // Reference to user ID
         userId: '', // Will be set after user creation
-        
+
         // Basic member info
         email: formData.get('email'),
         fullName: formData.get('fullName'),
         role: 'user',
         status: formData.get('status'),
         joinedDate: new Date(),
-        
+
         // Detailed member information
         phone: formData.get('phone'),
         studentId: formData.get('studentId'),
@@ -627,16 +628,16 @@ async function handleAddUser(event) {
         gender: formData.get('gender') || '',
         dateOfBirth: formData.get('dateOfBirth') || '',
         profilePicture: formData.get('profilePicture') || '',
-        
+
         // Membership details
         membershipType: 'student',
         membershipStatus: 'active',
         libraryCardNumber: generateLibraryCardNumber(),
-        
+
         // Administrative info
         createdBy: currentUser.uid,
         createdAt: new Date(),
-        
+
         // User preferences
         preferences: {
             notifications: true,
@@ -644,12 +645,12 @@ async function handleAddUser(event) {
             smsNotifications: false,
             preferredLanguage: 'en'
         },
-        
+
         // Academic info
         academicYear: formData.get('year'),
         semester: 'Fall', // Default semester
         enrollmentDate: new Date(),
-        
+
         // Contact preferences
         contactMethods: {
             email: true,
@@ -661,29 +662,29 @@ async function handleAddUser(event) {
     try {
         // Step 1: Create user in Firebase Authentication
         const userCredential = await window.createUserWithEmailAndPassword(
-            window.firebaseAuth, 
-            userData.email, 
+            window.firebaseAuth,
+            userData.email,
             password
         );
-        
-        
+
+
         // Step 2: Add basic user data to 'users' collection
         await window.setDoc(
-            window.doc(window.firebaseDb, 'users', userCredential.user.uid), 
+            window.doc(window.firebaseDb, 'users', userCredential.user.uid),
             userData
         );
-        
-        
+
+
         // Step 3: Add detailed member data to 'members' collection
         // Set the userId reference in member data
         memberData.userId = userCredential.user.uid;
-        
+
         await window.addDoc(
-            window.collection(window.firebaseDb, 'members'), 
+            window.collection(window.firebaseDb, 'members'),
             memberData
         );
-        
-        
+
+
         showMessage('User and member added successfully!', 'success');
         closeAddUserModal();
         loadUsers();
@@ -691,7 +692,7 @@ async function handleAddUser(event) {
     } catch (error) {
         console.error('Error adding user/member:', error);
         let errorMessage = 'Error adding user. Please try again.';
-        
+
         if (error.code === 'auth/email-already-in-use') {
             errorMessage = 'Email address is already in use.';
         } else if (error.code === 'auth/weak-password') {
@@ -701,7 +702,7 @@ async function handleAddUser(event) {
         } else if (error.code === 'permission-denied') {
             errorMessage = 'Permission denied. Check Firestore security rules.';
         }
-        
+
         showMessage(errorMessage, 'error');
     }
 }
@@ -709,7 +710,7 @@ async function handleAddUser(event) {
 // Handle edit book form submission
 async function handleEditBook(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const bookId = formData.get('id');
     const bookData = {
@@ -770,31 +771,31 @@ async function approveUser(userId) {
 async function deleteUser(userId) {
     if (confirm('Are you sure you want to delete this user? This will delete both user account and member record. This action cannot be undone.')) {
         try {
-            
+
             // Step 1: Find and delete the corresponding member record
             const membersSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'members'));
             let memberToDelete = null;
-            
+
             membersSnapshot.forEach(doc => {
                 const memberData = doc.data();
                 if (memberData.userId === userId) {
                     memberToDelete = { id: doc.id, ...memberData };
                 }
             });
-            
+
             // Step 2: Delete member record if found
             if (memberToDelete) {
                 await window.deleteDoc(window.doc(window.firebaseDb, 'members', memberToDelete.id));
             } else {
             }
-            
+
             // Step 3: Delete user record
             await window.deleteDoc(window.doc(window.firebaseDb, 'users', userId));
-            
+
             showMessage('User and member data deleted successfully!', 'success');
             loadUsers();
             loadStats();
-            
+
         } catch (error) {
             console.error('Error deleting user:', error);
             showMessage('Error deleting user. Please try again.', 'error');
@@ -809,11 +810,11 @@ function filterBooks() {
 
     filteredBooks = books.filter(book => {
         const matchesSearch = book.title.toLowerCase().includes(searchTerm) ||
-                            book.author.toLowerCase().includes(searchTerm) ||
-                            book.isbn.toLowerCase().includes(searchTerm);
-        
+            book.author.toLowerCase().includes(searchTerm) ||
+            book.isbn.toLowerCase().includes(searchTerm);
+
         const matchesAvailability = !availabilityFilter || book.availability === availabilityFilter;
-        
+
         return matchesSearch && matchesAvailability;
     });
 
@@ -827,15 +828,15 @@ function filterFeedback() {
     const typeFilter = document.getElementById('feedbackTypeFilter')?.value || '';
 
     filteredFeedback = feedback.filter(feedbackItem => {
-        const matchesSearch = 
+        const matchesSearch =
             (feedbackItem.subject || '').toLowerCase().includes(searchTerm) ||
             (feedbackItem.message || '').toLowerCase().includes(searchTerm) ||
             (feedbackItem.userName || '').toLowerCase().includes(searchTerm) ||
             (feedbackItem.userEmail || '').toLowerCase().includes(searchTerm);
-        
+
         const matchesStatus = !statusFilter || feedbackItem.status === statusFilter;
         const matchesType = !typeFilter || feedbackItem.type === typeFilter;
-        
+
         return matchesSearch && matchesStatus && matchesType;
     });
 
@@ -857,7 +858,7 @@ function openFeedbackModal(feedbackId) {
     document.getElementById('feedbackStatusDisplay').textContent = feedbackItem.status || 'New';
     document.getElementById('feedbackDateDisplay').textContent = formatDate(feedbackItem.createdAt);
     document.getElementById('feedbackMessageDisplay').textContent = feedbackItem.message || 'No message provided';
-    
+
     // User information
     const userInfo = `
         <div class="user-detail">
@@ -896,7 +897,7 @@ async function updateFeedbackStatus(feedbackId, newStatus) {
             updatedAt: new Date(),
             updatedBy: currentUser.uid
         });
-        
+
         showMessage(`Feedback status updated to ${newStatus}!`, 'success');
         loadFeedback();
     } catch (error) {
@@ -922,13 +923,13 @@ async function deleteFeedback(feedbackId) {
 // Handle feedback action form submission
 async function handleFeedbackAction(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const feedbackId = formData.get('feedbackId');
     const status = formData.get('status');
     const priority = formData.get('priority');
     const adminResponse = formData.get('adminResponse');
-    
+
     try {
         await window.updateDoc(window.doc(window.firebaseDb, 'feedback', feedbackId), {
             status: status,
@@ -937,7 +938,7 @@ async function handleFeedbackAction(event) {
             updatedAt: new Date(),
             updatedBy: currentUser.uid
         });
-        
+
         showMessage('Feedback updated successfully!', 'success');
         closeFeedbackModal();
         loadFeedback();
@@ -998,10 +999,10 @@ async function handleLogout() {
 function showMessage(message, type) {
     const messageContainer = document.getElementById(`${type}Message`);
     const messageText = messageContainer.querySelector('.message-text');
-    
+
     messageText.textContent = message;
     messageContainer.style.display = 'flex';
-    
+
     // Auto hide after 5 seconds
     setTimeout(() => {
         hideMessage(`${type}Message`);
@@ -1064,20 +1065,20 @@ function setupEventListeners() {
 
 // Initialize when DOM is loaded
 // Initialize admin dashboard when DOM is ready and Firebase is available
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize sidebar first
     initializeSidebar();
-    
+
     if (window.firebaseReady && window.firebaseAuth && window.firebaseDb) {
         initializeAdminDashboard();
     } else {
         // Listen for Firebase ready event
-        window.addEventListener('firebaseReady', function() {
+        window.addEventListener('firebaseReady', function () {
             initializeAdminDashboard();
         });
-        
+
         // Listen for Firebase error event
-        window.addEventListener('firebaseError', function(event) {
+        window.addEventListener('firebaseError', function (event) {
             console.error('❌ Firebase initialization error:', event.detail);
             showMessage('Firebase initialization failed. Please refresh the page and try again.', 'error');
         });
@@ -1088,19 +1089,19 @@ document.addEventListener('DOMContentLoaded', function() {
 function setupBorrowedBooksListener() {
     // Listen for changes to borrowed books collection
     const borrowedBooksRef = window.collection(window.firebaseDb, 'borrowedBooks');
-    
+
     window.onSnapshot(borrowedBooksRef, async (snapshot) => {
-        
+
         // Clear arrays completely to prevent duplicates
         borrowedBooks = [];
         filteredBorrowedBooks = [];
-        
+
         const borrowedData = [];
         snapshot.forEach(doc => {
             borrowedData.push({ id: doc.id, ...doc.data() });
         });
-        
-        
+
+
         // Fetch member details and book details for each borrowed book
         for (const borrowed of borrowedData) {
             try {
@@ -1111,12 +1112,12 @@ function setupBorrowedBooksListener() {
                         window.where('userId', '==', borrowed.borrowerId)
                     )
                 );
-                
+
                 let memberData = null;
                 membersSnapshot.forEach(doc => {
                     memberData = { id: doc.id, ...doc.data() };
                 });
-                
+
                 // Fetch book details from books collection
                 let bookData = null;
                 if (borrowed.bookId) {
@@ -1129,18 +1130,18 @@ function setupBorrowedBooksListener() {
                         console.warn('Error fetching book details for bookId:', borrowed.bookId, ':', bookError);
                     }
                 }
-                
+
                 // Enhance borrowed book record with member details and book details
                 const enhancedBorrowed = {
                     ...borrowed,
                     // Book details from books collection
                     author: borrowed.author || bookData?.author || 'Unknown Author',
                     isbn: borrowed.isbn || bookData?.isbn || 'No ISBN',
-                    
+
                     // Basic borrower info from borrowed record
                     borrowerName: borrowed.borrowerName || memberData?.fullName || 'Unknown',
                     borrowerEmail: borrowed.borrowerEmail || memberData?.email || 'Unknown',
-                    
+
                     // Detailed member info from members collection
                     memberDetails: memberData ? {
                         id: memberData.id,
@@ -1164,16 +1165,16 @@ function setupBorrowedBooksListener() {
                         contactMethods: memberData.contactMethods || {}
                     } : null
                 };
-                
+
                 borrowedBooks.push(enhancedBorrowed);
-                
+
             } catch (memberError) {
                 console.warn('Error fetching member details for', borrowed.borrowerId, ':', memberError);
                 // Add borrowed book even if member details fail
                 borrowedBooks.push(borrowed);
             }
         }
-        
+
         // Remove duplicates based on document ID (just in case)
         const seen = new Set();
         borrowedBooks = borrowedBooks.filter(book => {
@@ -1184,18 +1185,18 @@ function setupBorrowedBooksListener() {
             seen.add(book.id);
             return true;
         });
-        
+
         // Sort by borrow date (newest first)
         borrowedBooks.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
-        
+
         filteredBorrowedBooks = [...borrowedBooks];
-        
+
         // Only update display if currently viewing borrowed books section
         const borrowedSection = document.getElementById('borrowed');
         if (borrowedSection && borrowedSection.classList.contains('active')) {
             displayBorrowedBooks();
         }
-        
+
     });
 }
 
@@ -1207,20 +1208,20 @@ let filteredBorrowedBooks = [];
 async function loadBorrowedBooks() {
     try {
         console.log('Loading borrowed books...');
-        
+
         // Fetch borrowed books from Firestore
         const borrowedSnapshot = await window.getDocs(window.collection(window.firebaseDb, 'borrowedBooks'));
         borrowedBooks = [];
-        
+
         // Get all borrowed books data
         const borrowedData = [];
         borrowedSnapshot.forEach(doc => {
             borrowedData.push({ id: doc.id, ...doc.data() });
         });
-        
+
         console.log('Found borrowed books:', borrowedData.length);
-        
-        
+
+
         // Fetch member details and book details for each borrowed book
         for (const borrowed of borrowedData) {
             try {
@@ -1231,12 +1232,12 @@ async function loadBorrowedBooks() {
                         window.where('userId', '==', borrowed.borrowerId)
                     )
                 );
-                
+
                 let memberData = null;
                 membersSnapshot.forEach(doc => {
                     memberData = { id: doc.id, ...doc.data() };
                 });
-                
+
                 // Fetch book details from books collection
                 let bookData = null;
                 if (borrowed.bookId) {
@@ -1249,18 +1250,18 @@ async function loadBorrowedBooks() {
                         console.warn('Error fetching book details for bookId:', borrowed.bookId, ':', bookError);
                     }
                 }
-                
+
                 // Enhance borrowed book record with member details and book details
                 const enhancedBorrowed = {
                     ...borrowed,
                     // Book details from books collection
                     author: borrowed.author || bookData?.author || 'Unknown Author',
                     isbn: borrowed.isbn || bookData?.isbn || 'No ISBN',
-                    
+
                     // Basic borrower info from borrowed record
                     borrowerName: borrowed.borrowerName || memberData?.fullName || 'Unknown',
                     borrowerEmail: borrowed.borrowerEmail || memberData?.email || 'Unknown',
-                    
+
                     // Detailed member info from members collection
                     memberDetails: memberData ? {
                         id: memberData.id,
@@ -1284,16 +1285,16 @@ async function loadBorrowedBooks() {
                         contactMethods: memberData.contactMethods || {}
                     } : null
                 };
-                
+
                 borrowedBooks.push(enhancedBorrowed);
-                
+
             } catch (memberError) {
                 console.warn('Error fetching member details for', borrowed.borrowerId, ':', memberError);
                 // Add borrowed book even if member details fail
                 borrowedBooks.push(borrowed);
             }
         }
-        
+
         // Remove duplicates based on document ID (just in case)
         const seen = new Set();
         borrowedBooks = borrowedBooks.filter(book => {
@@ -1304,15 +1305,15 @@ async function loadBorrowedBooks() {
             seen.add(book.id);
             return true;
         });
-        
+
         // Sort by borrow date (newest first)
         borrowedBooks.sort((a, b) => new Date(b.borrowDate) - new Date(a.borrowDate));
-        
+
         filteredBorrowedBooks = [...borrowedBooks];
         console.log('Loaded borrowed books:', borrowedBooks.length);
         displayBorrowedBooks();
-        
-        
+
+
     } catch (error) {
         console.error('Error loading borrowed books:', error);
         showMessage('Error loading borrowed books data.', 'error');
@@ -1322,14 +1323,14 @@ async function loadBorrowedBooks() {
 // Display borrowed books in table
 function displayBorrowedBooks() {
     const tbody = document.getElementById('borrowedTableBody');
-    
+
     if (!tbody) {
         console.error('Borrowed table body not found');
         return;
     }
-    
+
     console.log('Displaying borrowed books:', filteredBorrowedBooks.length);
-    
+
     if (filteredBorrowedBooks.length === 0) {
         tbody.innerHTML = `
             <tr class="no-data">
@@ -1344,11 +1345,11 @@ function displayBorrowedBooks() {
         `;
         return;
     }
-    
+
     tbody.innerHTML = filteredBorrowedBooks.map(borrowed => {
         const statusClass = getStatusClass(borrowed.status);
         const statusIcon = getStatusIcon(borrowed.status);
-        
+
         return `
             <tr>
                 <td>
@@ -1426,12 +1427,12 @@ function filterBorrowedBooks() {
     const searchTerm = document.getElementById('borrowedSearch')?.value.toLowerCase() || '';
     const studentIdTerm = document.getElementById('studentIdSearch')?.value.toLowerCase() || '';
     const statusFilter = document.getElementById('borrowedStatusFilter')?.value || '';
-    
+
     console.log('Filtering borrowed books:', { searchTerm, studentIdTerm, statusFilter, totalBooks: borrowedBooks.length });
-    
+
     filteredBorrowedBooks = borrowedBooks.filter(borrowed => {
         // General search (book title, author, borrower name, email, ISBN, department, phone)
-        const matchesSearch = 
+        const matchesSearch =
             (borrowed.bookTitle || '').toLowerCase().includes(searchTerm) ||
             (borrowed.author || '').toLowerCase().includes(searchTerm) ||
             (borrowed.borrowerName || '').toLowerCase().includes(searchTerm) ||
@@ -1439,17 +1440,17 @@ function filterBorrowedBooks() {
             (borrowed.isbn || '').toLowerCase().includes(searchTerm) ||
             (borrowed.memberDetails?.department || '').toLowerCase().includes(searchTerm) ||
             (borrowed.memberDetails?.phone || '').toLowerCase().includes(searchTerm);
-        
+
         // Student ID specific search
-        const matchesStudentId = !studentIdTerm || 
+        const matchesStudentId = !studentIdTerm ||
             (borrowed.memberDetails?.studentId || '').toLowerCase().includes(studentIdTerm);
-        
+
         // Status filter
         const matchesStatus = !statusFilter || borrowed.status === statusFilter;
-        
+
         return matchesSearch && matchesStudentId && matchesStatus;
     });
-    
+
     console.log('Filtered results:', filteredBorrowedBooks.length);
     displayBorrowedBooks();
 }
@@ -1492,26 +1493,26 @@ async function markAsReturned(borrowedId) {
     const borrowed = borrowedBooks.find(b => b.id === borrowedId);
     if (borrowed) {
         try {
-            
+
             // Update borrowed record in Firestore
             await window.updateDoc(window.doc(window.firebaseDb, 'borrowedBooks', borrowedId), {
                 status: 'returned',
                 returnDate: new Date().toISOString().split('T')[0]
             });
-            
+
             // Update book availability back to available
             if (borrowed.bookId) {
                 await window.updateDoc(window.doc(window.firebaseDb, 'books', borrowed.bookId), {
                     availability: 'available'
                 });
             }
-            
+
             // Update local data
             borrowed.status = 'returned';
             borrowed.returnDate = new Date().toISOString().split('T')[0];
             displayBorrowedBooks();
             showMessage(`Book "${borrowed.bookTitle}" marked as returned successfully!`, 'success');
-            
+
         } catch (error) {
             console.error('Error marking book as returned:', error);
             showMessage('Error marking book as returned. Please try again.', 'error');
@@ -1535,9 +1536,9 @@ function viewBorrowerDetails(borrowerId) {
     if (borrowed) {
         const activeBooks = borrowedBooks.filter(b => b.borrowerId === borrowerId && b.status === 'active').length;
         const overdueBooks = borrowedBooks.filter(b => b.borrowerId === borrowerId && b.status === 'overdue').length;
-        
+
         const memberDetails = borrowed.memberDetails;
-        
+
         if (memberDetails) {
             // Create detailed member information display
             const alertMessage = `
@@ -1574,7 +1575,7 @@ function viewBorrowerDetails(borrowerId) {
 ${memberDetails.notes || 'No additional notes'}            
 
         `.trim();
-            
+
             alert(alertMessage);
         } else {
             // Fallback for basic borrower info only
@@ -1600,7 +1601,7 @@ function showSection(sectionName) {
 
     // Add active class to selected nav item
     document.querySelector(`[data-section="${sectionName}"]`).classList.add('active');
-    
+
     // Load data when specific sections are shown
     if (sectionName === 'borrowed') {
         // If no borrowed books data is loaded yet, load it
@@ -1629,7 +1630,7 @@ function initializeReports() {
         console.warn('Chart.js not loaded, reports will not work properly');
         return;
     }
-    
+
     loadReportData();
     updateReports();
 }
@@ -1639,7 +1640,7 @@ async function loadReportData() {
     try {
         const dateRange = document.getElementById('reportDateRange')?.value || '30';
         const startDate = getDateRangeStart(dateRange);
-        
+
         // Load all necessary data
         await Promise.all([
             loadBooks(),
@@ -1647,10 +1648,10 @@ async function loadReportData() {
             loadBorrowedBooks(),
             loadMembers()
         ]);
-        
+
         // Process report data
         processReportData(startDate);
-        
+
     } catch (error) {
         console.error('Error loading report data:', error);
         showMessage('Error loading report data.', 'error');
@@ -1660,18 +1661,18 @@ async function loadReportData() {
 // Process report data based on date range
 function processReportData(startDate) {
     const now = new Date();
-    
+
     // Filter data based on date range
     const filteredBorrowedBooks = borrowedBooks.filter(book => {
         const borrowDate = new Date(book.borrowDate);
         return borrowDate >= startDate;
     });
-    
+
     const filteredUsers = users.filter(user => {
         const joinDate = user.joinedDate ? new Date(user.joinedDate.seconds * 1000) : new Date();
         return joinDate >= startDate;
     });
-    
+
     // Calculate statistics
     reportData = {
         totalBooks: books.length,
@@ -1686,14 +1687,14 @@ function processReportData(startDate) {
         overdueAnalysis: calculateOverdueAnalysis(),
         userActivity: calculateUserActivity(filteredBorrowedBooks)
     };
-    
+
     updateReportDisplays();
 }
 
 // Calculate popular books
 function calculatePopularBooks(borrowedBooks) {
     const bookCounts = {};
-    
+
     borrowedBooks.forEach(borrow => {
         const bookTitle = borrow.bookTitle;
         if (bookCounts[bookTitle]) {
@@ -1706,7 +1707,7 @@ function calculatePopularBooks(borrowedBooks) {
             };
         }
     });
-    
+
     return Object.values(bookCounts)
         .sort((a, b) => b.count - a.count)
         .slice(0, 10);
@@ -1715,19 +1716,19 @@ function calculatePopularBooks(borrowedBooks) {
 // Calculate department statistics
 function calculateDepartmentStats() {
     const departmentCounts = {};
-    
+
     users.forEach(user => {
         // Try to get department from member data
         const memberData = getMemberDataByUserId(user.id);
         const department = memberData?.department || 'Unknown';
-        
+
         if (departmentCounts[department]) {
             departmentCounts[department]++;
         } else {
             departmentCounts[department] = 1;
         }
     });
-    
+
     return Object.entries(departmentCounts)
         .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
@@ -1737,13 +1738,13 @@ function calculateDepartmentStats() {
 function calculateBorrowingTrends(borrowedBooks, startDate) {
     const trends = {};
     const currentDate = new Date();
-    
+
     // Create date range
     for (let d = new Date(startDate); d <= currentDate; d.setDate(d.getDate() + 1)) {
         const dateKey = d.toISOString().split('T')[0];
         trends[dateKey] = 0;
     }
-    
+
     // Count borrowings per day
     borrowedBooks.forEach(borrow => {
         const borrowDate = new Date(borrow.borrowDate).toISOString().split('T')[0];
@@ -1751,7 +1752,7 @@ function calculateBorrowingTrends(borrowedBooks, startDate) {
             trends[borrowDate]++;
         }
     });
-    
+
     return trends;
 }
 
@@ -1759,12 +1760,12 @@ function calculateBorrowingTrends(borrowedBooks, startDate) {
 function calculateOverdueAnalysis() {
     const now = new Date();
     let critical = 0, warning = 0, minor = 0;
-    
+
     borrowedBooks.forEach(borrow => {
         if (borrow.status === 'overdue' || borrow.status === 'active') {
             const dueDate = new Date(borrow.dueDate);
             const daysOverdue = Math.floor((now - dueDate) / (1000 * 60 * 60 * 24));
-            
+
             if (daysOverdue > 30) {
                 critical++;
             } else if (daysOverdue > 7) {
@@ -1774,7 +1775,7 @@ function calculateOverdueAnalysis() {
             }
         }
     });
-    
+
     return { critical, warning, minor };
 }
 
@@ -1783,10 +1784,10 @@ function calculateUserActivity(borrowedBooks) {
     const activeUsers = new Set();
     let totalBorrowTime = 0;
     let borrowCount = 0;
-    
+
     borrowedBooks.forEach(borrow => {
         activeUsers.add(borrow.borrowerId);
-        
+
         if (borrow.returnDate) {
             const borrowDate = new Date(borrow.borrowDate);
             const returnDate = new Date(borrow.returnDate);
@@ -1794,7 +1795,7 @@ function calculateUserActivity(borrowedBooks) {
             borrowCount++;
         }
     });
-    
+
     return {
         activeUsers: activeUsers.size,
         avgBorrowTime: borrowCount > 0 ? Math.round(totalBorrowTime / borrowCount) : 0
@@ -1808,28 +1809,28 @@ function updateReportDisplays() {
     document.getElementById('totalUsersReport').textContent = reportData.totalUsers;
     document.getElementById('activeBorrowings').textContent = reportData.activeBorrowings;
     document.getElementById('overdueBooksReport').textContent = reportData.overdueBooks;
-    
+
     // Update borrowing trends
     document.getElementById('totalBorrowings').textContent = reportData.totalBorrowings;
-    document.getElementById('avgBorrowingsPerDay').textContent = 
+    document.getElementById('avgBorrowingsPerDay').textContent =
         Math.round(reportData.totalBorrowings / 30); // Assuming 30 days
-    
+
     // Update user activity
     document.getElementById('newUsersCount').textContent = reportData.newUsers;
     document.getElementById('activeUsersCount').textContent = reportData.userActivity.activeUsers;
     document.getElementById('avgBorrowTime').textContent = reportData.userActivity.avgBorrowTime;
-    
+
     // Update overdue analysis
     document.getElementById('criticalOverdue').textContent = reportData.overdueAnalysis.critical;
     document.getElementById('warningOverdue').textContent = reportData.overdueAnalysis.warning;
     document.getElementById('minorOverdue').textContent = reportData.overdueAnalysis.minor;
-    
+
     // Update popular books
     updatePopularBooksList();
-    
+
     // Update department stats
     updateDepartmentStats();
-    
+
     // Update charts
     updateCharts();
 }
@@ -1837,7 +1838,7 @@ function updateReportDisplays() {
 // Update popular books list
 function updatePopularBooksList() {
     const container = document.getElementById('popularBooksList');
-    
+
     if (reportData.popularBooks.length === 0) {
         container.innerHTML = `
             <div class="loading-placeholder">
@@ -1847,7 +1848,7 @@ function updatePopularBooksList() {
         `;
         return;
     }
-    
+
     container.innerHTML = reportData.popularBooks.map((book, index) => `
         <div class="popular-book-item">
             <div class="book-rank">${index + 1}</div>
@@ -1866,7 +1867,7 @@ function updatePopularBooksList() {
 // Update department stats
 function updateDepartmentStats() {
     const container = document.getElementById('departmentStats');
-    
+
     if (reportData.departmentStats.length === 0) {
         container.innerHTML = `
             <div class="loading-placeholder">
@@ -1876,9 +1877,9 @@ function updateDepartmentStats() {
         `;
         return;
     }
-    
+
     const maxCount = Math.max(...reportData.departmentStats.map(d => d.count));
-    
+
     container.innerHTML = reportData.departmentStats.map(dept => `
         <div class="department-item">
             <div>
@@ -1902,15 +1903,15 @@ function updateCharts() {
 function updateBorrowingTrendsChart() {
     const ctx = document.getElementById('borrowingTrendsChart');
     if (!ctx) return;
-    
+
     // Destroy existing chart
     if (reportCharts.borrowingTrends) {
         reportCharts.borrowingTrends.destroy();
     }
-    
+
     const labels = Object.keys(reportData.borrowingTrends).slice(-14); // Last 14 days
     const data = labels.map(label => reportData.borrowingTrends[label]);
-    
+
     reportCharts.borrowingTrends = new Chart(ctx, {
         type: 'line',
         data: {
@@ -1960,12 +1961,12 @@ function updateBorrowingTrendsChart() {
 function updateOverdueTrendChart() {
     const ctx = document.getElementById('overdueTrendChart');
     if (!ctx) return;
-    
+
     // Destroy existing chart
     if (reportCharts.overdueTrend) {
         reportCharts.overdueTrend.destroy();
     }
-    
+
     reportCharts.overdueTrend = new Chart(ctx, {
         type: 'doughnut',
         data: {
@@ -2007,7 +2008,7 @@ function getDateRangeStart(days) {
     if (days === 'all') {
         return new Date('2020-01-01'); // Far back date
     }
-    
+
     const date = new Date();
     date.setDate(date.getDate() - parseInt(days));
     return date;
@@ -2023,7 +2024,7 @@ function getMemberDataByUserId(userId) {
 // Update reports
 function updateReports() {
     const reportType = document.getElementById('reportType')?.value || 'overview';
-    
+
     if (reportType === 'overview') {
         document.getElementById('overviewReports').style.display = 'block';
         document.getElementById('detailedReports').style.display = 'none';
@@ -2038,7 +2039,7 @@ function updateReports() {
 // Load detailed report
 function loadDetailedReport(reportType) {
     const container = document.getElementById('detailedReportContent');
-    
+
     switch (reportType) {
         case 'borrowing':
             container.innerHTML = generateBorrowingReport();
@@ -2118,7 +2119,7 @@ function refreshReport(reportType) {
 function exportReports() {
     const reportType = document.getElementById('reportType')?.value || 'overview';
     const dateRange = document.getElementById('reportDateRange')?.value || '30';
-    
+
     // Create export options modal
     showExportModal(reportType, dateRange);
 }
@@ -2186,7 +2187,7 @@ function showExportModal(reportType, dateRange) {
             </div>
         </div>
     `;
-    
+
     // Add modal to page
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
@@ -2204,24 +2205,24 @@ function generateExport() {
     const format = document.querySelector('input[name="exportFormat"]:checked').value;
     const sections = Array.from(document.querySelectorAll('input[name="exportSections"]:checked'))
         .map(input => input.value);
-    
+
     if (sections.length === 0) {
         showMessage('Please select at least one report section to export.', 'error');
         return;
     }
-    
+
     try {
         const exportData = prepareExportData(sections);
-        
+
         if (format === 'csv') {
             exportToCSV(exportData, sections);
         } else if (format === 'json') {
             exportToJSON(exportData, sections);
         }
-        
+
         closeExportModal();
         showMessage('Report exported successfully!', 'success');
-        
+
     } catch (error) {
         console.error('Error generating export:', error);
         showMessage('Error generating export. Please try again.', 'error');
@@ -2235,7 +2236,7 @@ function prepareExportData(sections) {
         dateRange: document.getElementById('reportDateRange')?.value || '30',
         sections: {}
     };
-    
+
     sections.forEach(section => {
         switch (section) {
             case 'overview':
@@ -2271,22 +2272,22 @@ function prepareExportData(sections) {
                 break;
         }
     });
-    
+
     return data;
 }
 
 // Export to CSV
 function exportToCSV(data, sections) {
     let csvContent = '';
-    
+
     // Add header
     csvContent += 'ReadHub Library Management System - Report Export\n';
     csvContent += `Generated on: ${new Date().toLocaleString()}\n`;
     csvContent += `Date Range: Last ${data.dateRange} days\n\n`;
-    
+
     sections.forEach(section => {
         csvContent += `\n=== ${section.toUpperCase()} REPORT ===\n`;
-        
+
         switch (section) {
             case 'overview':
                 csvContent += 'Metric,Value\n';
@@ -2295,7 +2296,7 @@ function exportToCSV(data, sections) {
                 csvContent += `Active Borrowings,${data.sections.overview.activeBorrowings}\n`;
                 csvContent += `Overdue Books,${data.sections.overview.overdueBooks}\n`;
                 break;
-                
+
             case 'borrowing':
                 csvContent += 'Metric,Value\n';
                 csvContent += `Total Borrowings,${data.sections.borrowing.totalBorrowings}\n`;
@@ -2305,28 +2306,28 @@ function exportToCSV(data, sections) {
                     csvContent += `${date},${count}\n`;
                 });
                 break;
-                
+
             case 'popular':
                 csvContent += 'Rank,Title,Author,Borrow Count\n';
                 data.sections.popularBooks.forEach((book, index) => {
                     csvContent += `${index + 1},"${book.title}","${book.author}",${book.count}\n`;
                 });
                 break;
-                
+
             case 'users':
                 csvContent += 'Metric,Value\n';
                 csvContent += `New Users,${data.sections.userActivity.newUsers}\n`;
                 csvContent += `Active Users,${data.sections.userActivity.activeUsers}\n`;
                 csvContent += `Average Borrow Time (days),${data.sections.userActivity.avgBorrowTime}\n`;
                 break;
-                
+
             case 'overdue':
                 csvContent += 'Category,Count\n';
                 csvContent += `Critical (>30 days),${data.sections.overdueAnalysis.critical}\n`;
                 csvContent += `Warning (7-30 days),${data.sections.overdueAnalysis.warning}\n`;
                 csvContent += `Minor (1-7 days),${data.sections.overdueAnalysis.minor}\n`;
                 break;
-                
+
             case 'departments':
                 csvContent += 'Department,User Count\n';
                 data.sections.departmentStats.forEach(dept => {
@@ -2335,7 +2336,7 @@ function exportToCSV(data, sections) {
                 break;
         }
     });
-    
+
     // Download CSV file
     downloadFile(csvContent, 'library-report.csv', 'text/csv');
 }
@@ -2350,14 +2351,14 @@ function exportToJSON(data, sections) {
 function downloadFile(content, filename, mimeType) {
     const blob = new Blob([content], { type: mimeType });
     const url = URL.createObjectURL(blob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    
+
     URL.revokeObjectURL(url);
 }
 
@@ -2408,19 +2409,19 @@ function toggleSidebar() {
     const overlay = document.querySelector('.sidebar-overlay');
     const mainContent = document.querySelector('.main-content');
     const toggle = document.querySelector('.sidebar-toggle');
-    
+
     // Add click effect
     toggle.classList.add('clicked');
-    
+
     // Remove click effect after animation
     setTimeout(() => {
         toggle.classList.remove('clicked');
     }, 800);
-    
+
     if (window.innerWidth <= 768) {
         // Mobile behavior - slide in/out
         sidebarOpen = !sidebarOpen;
-        
+
         if (sidebarOpen) {
             sidebar.classList.add('mobile-visible');
             sidebar.classList.remove('mobile-hidden');
@@ -2433,7 +2434,7 @@ function toggleSidebar() {
     } else {
         // Desktop behavior - collapse/expand
         sidebarCollapsed = !sidebarCollapsed;
-        
+
         if (sidebarCollapsed) {
             sidebar.classList.add('collapsed');
             // Update toggle button icon
@@ -2456,7 +2457,7 @@ function closeSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
     const mainContent = document.querySelector('.main-content');
-    
+
     if (window.innerWidth <= 768) {
         sidebarOpen = false;
         sidebar.classList.remove('mobile-visible');
@@ -2473,7 +2474,7 @@ function handleResize() {
     const overlay = document.querySelector('.sidebar-overlay');
     const mainContent = document.querySelector('.main-content');
     const toggle = document.querySelector('.sidebar-toggle');
-    
+
     if (window.innerWidth > 768) {
         // Desktop view - reset mobile states and apply desktop behavior
         sidebar.classList.remove('mobile-visible', 'mobile-hidden');
@@ -2481,7 +2482,7 @@ function handleResize() {
         mainContent.classList.remove('mobile-full-width');
         document.body.style.overflow = 'auto';
         sidebarOpen = false;
-        
+
         // Restore desktop sidebar state from localStorage
         const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (isCollapsed) {
@@ -2499,12 +2500,12 @@ function handleResize() {
         // Mobile view - reset desktop states and apply mobile behavior
         sidebar.classList.remove('collapsed');
         sidebarCollapsed = false;
-        
+
         if (!sidebarOpen) {
             sidebar.classList.add('mobile-hidden');
             sidebar.classList.remove('mobile-visible');
         }
-        
+
         // Reset toggle icon for mobile
         const toggleIcon = toggle.querySelector('i');
         toggleIcon.className = 'fas fa-bars';
@@ -2516,7 +2517,7 @@ function initializeSidebar() {
     const sidebar = document.querySelector('.sidebar');
     const overlay = document.querySelector('.sidebar-overlay');
     const toggle = document.querySelector('.sidebar-toggle');
-    
+
     if (window.innerWidth <= 768) {
         // Mobile initialization
         sidebar.classList.add('mobile-hidden');
@@ -2529,7 +2530,7 @@ function initializeSidebar() {
         // Desktop initialization
         overlay.style.display = 'none';
         sidebarOpen = false;
-        
+
         // Restore desktop sidebar state from localStorage
         const isCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
         if (isCollapsed) {
@@ -2544,10 +2545,10 @@ function initializeSidebar() {
             toggleIcon.className = 'fas fa-times';
         }
     }
-    
+
     // Add event listeners
     window.addEventListener('resize', handleResize);
-    
+
     // Close sidebar when clicking on nav items on mobile
     const navItems = document.querySelectorAll('.nav-item');
     navItems.forEach(item => {
@@ -2557,7 +2558,7 @@ function initializeSidebar() {
             }
         });
     });
-    
+
     // Add keyboard navigation support
     document.addEventListener('keydown', (event) => {
         // Escape key closes sidebar
@@ -2571,20 +2572,20 @@ function initializeSidebar() {
                 }
             }
         }
-        
+
         // Alt + S toggles sidebar on desktop
         if (event.altKey && event.key === 's' && window.innerWidth > 768) {
             event.preventDefault();
             toggleSidebar();
         }
-        
+
         // Ctrl + Shift + S toggles sidebar on mobile
         if (event.ctrlKey && event.shiftKey && event.key === 'S' && window.innerWidth <= 768) {
             event.preventDefault();
             toggleSidebar();
         }
     });
-    
+
     // Make nav items focusable for keyboard navigation
     navItems.forEach((item, index) => {
         item.setAttribute('tabindex', '0');
