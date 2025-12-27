@@ -334,56 +334,51 @@ body {
     z-index: 90;
 }
 
-/* Desktop Sidebar Optimization */
+/* Desktop Sidebar - Always visible, static position */
 @media (min-width: 1024px) {
     .sidebar {
-        width: 320px;
-        padding: 2.5rem 0;
+        width: 260px;
+        padding: 1.5rem 0;
+        transform: translateX(0) !important;
+        position: fixed;
     }
 
     .sidebar-header {
-        padding: 0 2rem 2rem;
+        padding: 0 1.25rem 1.5rem;
     }
 
     .sidebar-header h2 {
-        font-size: 1.75rem;
+        font-size: 1.25rem;
     }
 
     .nav-item {
-        margin: 0 1rem;
-        padding: 1.25rem 1.5rem;
-        font-size: 1rem;
+        margin: 0;
+        padding: 0.875rem 1rem;
+        font-size: 0.9rem;
     }
 
     .nav-item i {
-        font-size: 1.25rem;
+        font-size: 1rem;
+    }
+
+    .main-content {
+        margin-left: 260px;
+        width: calc(100% - 260px);
     }
 }
 
-/* Desktop Collapsed Sidebar State */
-@media (min-width: 769px) {
-    .sidebar.collapsed {
-        width: 0;
-        padding: 0;
-        overflow: hidden;
+/* Mobile/Tablet - Sidebar hidden by default, shown with hamburger */
+@media (max-width: 1023px) {
+    .sidebar {
         transform: translateX(-100%);
+        width: 260px;
     }
 
-    .sidebar.collapsed~.main-content {
-        margin-left: 0;
-        width: 100%;
-    }
-}
-
-@media (min-width: 1024px) {
-    .sidebar.collapsed {
-        width: 0;
-        padding: 0;
-        overflow: hidden;
-        transform: translateX(-100%);
+    .sidebar.mobile-visible {
+        transform: translateX(0);
     }
 
-    .sidebar.collapsed~.main-content {
+    .main-content {
         margin-left: 0;
         width: 100%;
     }
