@@ -182,83 +182,22 @@ body {
     background: transparent;
 }
 
-/* Dashboard Header - Visible on all screens */
-.mobile-header {
-    display: flex;
+/* Navbar Styles */
+.navbar {
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
+    height: 60px;
     z-index: 100;
-    background: var(--sidebar-bg);
-    padding: 0.75rem 1rem;
-    align-items: center;
-    gap: 1rem;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    display: block;
+    /* Ensure visible */
 }
 
-.mobile-header .mobile-title {
-    color: var(--sidebar-text);
-    font-size: 1.25rem;
-    font-weight: 700;
-}
-
-/* Adjust Dashboard Container to account for header */
-.dashboard-container {
-    display: flex;
-    min-height: 100vh;
-    padding-top: 60px;
-    /* Space for fixed header */
-    margin-left: 260px;
-    transition: margin-left var(--transition-base);
-}
-
-/* Desktop Styles */
-@media (min-width: 1024px) {
-
-    /* Header remains visible on desktop */
-    .mobile-header {
-        display: flex;
-        /* Ensure it matches sidebar width for the logo part if desired, 
-           but here we want it full width or offset? 
-           Let's keep it full width z-index 100. */
-    }
-
-    .mobile-header .mobile-title {
-        display: block;
-        /* Or hide if redundant with sidebar brand */
-    }
-
-    /* Adjust sidebar to sit below header */
-    .sidebar {
-        top: 60px;
-        /* Below header */
-        height: calc(100vh - 60px);
-        box-shadow: none;
-        /* Header creates the separation */
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    /* When sidebar is collapsed */
-    .sidebar.collapsed {
-        width: 80px;
-    }
-
-    .sidebar.collapsed~.main-content {
-        margin-left: 80px;
-        width: calc(100% - 80px);
-    }
-
-    .sidebar-header {
-        display: none;
-        /* Hide sidebar internal header since we have top bar */
-    }
-}
-
-/* Hide old navbar */
-.navbar {
-    display: none !important;
-}
+/* Legacy .mobile-header removed */
 
 .nav-container {
     max-width: 1400px;
@@ -680,7 +619,8 @@ body {
 /* Desktop Main Content Optimization */
 @media (min-width: 1024px) {
     .main-content {
-        margin-left: 320px;
+        margin-left: 0;
+        /* Overlay sidebar, so no margin needed */
         padding: 3rem;
     }
 

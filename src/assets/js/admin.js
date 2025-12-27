@@ -2511,3 +2511,8 @@ function initializeSidebar() {
 window.toggleSidebar = toggleSidebar;
 window.closeSidebar = closeSidebar;
 window.initializeSidebar = initializeSidebar;
+
+// Initialize sidebar when DOM is loaded
+document.addEventListener('DOMContentLoaded', () => {
+    initializeSidebar();
+});

@@ -235,10 +235,11 @@
     }
 }
 
-/* Desktop - Hide hamburger toggle, sidebar is always visible */
+/* Desktop - Ensure hamburger toggle is visible */
 @media (min-width: 1024px) {
     .sidebar-toggle {
-        display: none !important;
+        display: flex !important;
+        /* Force display */
     }
 }
 
